@@ -1,13 +1,25 @@
 import "~/styles/globals.css";
 
-import { Inter } from "next/font/google";
+import { Montserrat_Subrayada, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import Navbar from "~/components/navbar";
 
-const inter = Inter({
+// const inter = Inter({
+//   subsets: ["latin"],
+//   variable: "--font-sans",
+// });
+
+const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
+});
+
+const monstserrat_subrayada = Montserrat_Subrayada({
+  weight: "700",
+  subsets: ["latin"],
+  variable: "--font-title",
 });
 
 export const metadata = {
@@ -23,8 +35,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
+      <body
+        className={`h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${monstserrat_subrayada.variable}`}
+      >
         <TRPCReactProvider cookies={cookies().toString()}>
+          <Navbar></Navbar>
           {children}
         </TRPCReactProvider>
       </body>
