@@ -1,3 +1,3 @@
 export default function Home() {
-  return <main>hello from cleared project</main>;
+  return <main className="h-full w-full"></main>;
 }
