@@ -2,7 +2,7 @@ import { type ComponentProps } from "react";
 import cn from "./cn";
 
 type ButtonProps = {
-  variant?: "normal";
+  variant?: "normal" | "ghost";
 } & ComponentProps<"button">;
 
 export default function Button({
@@ -12,16 +12,20 @@ export default function Button({
   className = "",
   ...props
 }: ButtonProps) {
-  if (variant === "normal")
-    return (
-      <button
-        className={cn(
-          "first-letter hover:shadow-button border-2 border-black px-4 py-2 text-xl font-bold duration-300 hover:translate-x-[2px] hover:translate-y-[-2px]",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </button>
-    );
+  const normalStyling = "border-2 border-black  hover:shadow-button";
+  const ghostStyling = "hover:bg-gray-200";
+
+  const buttonStyling = variant === "normal" ? normalStyling : ghostStyling;
+  return (
+    <button
+      className={cn(
+        "w-fit rounded-md px-4 py-2 text-lg duration-300 hover:translate-x-[2px] hover:translate-y-[-2px]",
+        buttonStyling,
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
 }

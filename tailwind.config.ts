@@ -13,6 +13,9 @@ export default {
         button: "-2px 2px #000",
       },
     },
+    maxWidth: {
+      "screen-2xl": "1440px",
+    },
   },
   plugins: [],
 } satisfies Config;

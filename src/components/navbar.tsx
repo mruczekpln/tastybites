@@ -2,9 +2,21 @@ import Link from "next/link";
 import { type ComponentProps } from "react";
 import cn from "./cn";
 import Button from "./button";
+import Image from "next/image";
 
 function Logo() {
-  return <p className="font-title text-3xl font-extrabold">TastyBites</p>;
+  return (
+    <div className="flex items-center gap-2">
+      <Image
+        src="/navbar-logo.svg"
+        alt="hero/photo"
+        width={48}
+        height={48}
+        className="inline"
+      ></Image>
+      <p className="font-title text-4xl font-bold leading-none">TastyBites</p>
+    </div>
+  );
 }
 
 type NavLinkProps = {
@@ -21,10 +33,7 @@ function NavLink({
 }: NavLinkProps) {
   if (variant === "normal")
     return (
-      <Link
-        href={href}
-        className={cn("text-xl font-bold hover:underline", className)}
-      >
+      <Link href={href} className={cn("text-xl hover:underline", className)}>
         {children}
       </Link>
     );
@@ -38,8 +47,8 @@ function NavLink({
 
 export default function Navbar() {
   return (
-    <div className="absolute w-full border-b-2 border-black">
-      <nav className="mx-auto flex h-20 w-full max-w-screen-xl items-center justify-between">
+    <div className="absolute w-full border-b-2 border-black bg-white">
+      <nav className="mx-auto flex h-20 w-full max-w-screen-2xl items-center justify-between font-bold">
         <Logo></Logo>
 
         <div className="flex items-center gap-8">
@@ -47,18 +56,18 @@ export default function Navbar() {
           <NavLink href="/recipes">Recipes.</NavLink>
           <NavLink
             variant="border"
-            className="border-2 px-4 py-2"
+            className=" border-2 px-4 py-2"
             href="/recipes/create"
           >
-            Add your recipe.
+            Add your recipe
           </NavLink>
-          <div className="h-2 w-2 rounded-full bg-black/50"></div>
+          <div className="h-2 w-2 rounded-full bg-black"></div>
           <NavLink
             variant="border"
             href="/auth/login"
-            className="rounded-md bg-yellow-500"
+            className="bg-yellow-500"
           >
-            Sign in / up.
+            Sign in / up
           </NavLink>
         </div>
       </nav>
