@@ -9,6 +9,9 @@ export default {
         sans: ["var(--font-sans)", ...fontFamily.sans],
         title: ["var(--font-title)"],
       },
+      boxShadow: {
+        button: "-2px 2px #000",
+      },
     },
   },
   plugins: [],
