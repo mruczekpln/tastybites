@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { Montserrat_Subrayada, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
@@ -16,9 +17,14 @@ const space_grotesk = Space_Grotesk({
   variable: "--font-sans",
 });
 
-const monstserrat_subrayada = Montserrat_Subrayada({
-  weight: "700",
-  subsets: ["latin"],
+// const monstserrat_subrayada = Montserrat_Subrayada({
+//   weight: "700",
+//   subsets: ["latin"],
+//   variable: "--font-title",
+// });
+
+const titleFont = localFont({
+  src: "./nyghtserif.woff2",
   variable: "--font-title",
 });
 
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${monstserrat_subrayada.variable}`}
+        className={`h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${titleFont.variable}`}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
           <Navbar></Navbar>
