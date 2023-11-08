@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { type ComponentProps } from "react";
 import cn from "./cn";
+import Button from "./button";
 
 function Logo() {
   return <p className="font-title text-3xl font-extrabold">TastyBites</p>;
@@ -8,38 +9,36 @@ function Logo() {
 
 type NavLinkProps = {
   variant?: "normal" | "border";
-} & ComponentProps<"a">;
+} & ComponentProps<"a"> &
+  ComponentProps<"button">;
 
-function NavLink(props: NavLinkProps) {
-  const variant = props.variant ?? "normal";
-  const href = props.href ?? "/";
-
+function NavLink({
+  variant = "normal",
+  href = "",
+  className,
+  children,
+  ...props
+}: NavLinkProps) {
   if (variant === "normal")
     return (
       <Link
         href={href}
-        className={cn("text-xl hover:underline", props.className)}
+        className={cn("text-xl font-bold hover:underline", className)}
       >
-        {props.children}
+        {children}
       </Link>
     );
   else
     return (
-      <Link
-        className={cn(
-          "border-2 px-4 py-2 text-xl duration-300 hover:bg-gray-200",
-          props.className,
-        )}
-        href={href}
-      >
-        Add your recipe.
+      <Link href={href}>
+        <Button className={className}>{children}</Button>
       </Link>
     );
 }
 
 export default function Navbar() {
   return (
-    <div className="absolute w-full border-b-2">
+    <div className="absolute w-full border-b-2 border-black">
       <nav className="mx-auto flex h-20 w-full max-w-screen-xl items-center justify-between">
         <Logo></Logo>
 
@@ -57,7 +56,7 @@ export default function Navbar() {
           <NavLink
             variant="border"
             href="/auth/login"
-            className="relative bottom-0 border-0 bg-yellow-500 px-4 py-2 duration-200 hover:bottom-1 hover:bg-yellow-500 hover:shadow-xl hover:shadow-yellow-500/20"
+            className="rounded-md bg-yellow-500"
           >
             Sign in / up.
           </NavLink>
