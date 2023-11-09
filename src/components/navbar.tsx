@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { type ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import cn from "./cn";
 import Button from "./button";
 import Image from "next/image";
+import { sign } from "crypto";
 
 function Logo() {
   return (
@@ -47,7 +48,7 @@ function NavLink({
 
 export default function Navbar() {
   return (
-    <div className="absolute w-full border-b-2 border-black bg-white">
+    <div className="absolute z-10 w-full border-b-2 border-black bg-white">
       <nav className="mx-auto flex h-20 w-full max-w-screen-2xl items-center justify-between font-bold">
         <Logo></Logo>
 
