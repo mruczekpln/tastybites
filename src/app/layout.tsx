@@ -6,22 +6,12 @@ import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import Navbar from "~/components/navbar";
-
-// const inter = Inter({
-//   subsets: ["latin"],
-//   variable: "--font-sans",
-// });
+import Footer from "~/components/footer";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
 });
-
-// const monstserrat_subrayada = Montserrat_Subrayada({
-//   weight: "700",
-//   subsets: ["latin"],
-//   variable: "--font-title",
-// });
 
 const titleFont = localFont({
   src: "./nyghtserif.woff2",
@@ -42,11 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${titleFont.variable}`}
+        className={`min-h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${titleFont.variable}`}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
           <Navbar></Navbar>
           {children}
+          <Footer></Footer>
         </TRPCReactProvider>
       </body>
     </html>
