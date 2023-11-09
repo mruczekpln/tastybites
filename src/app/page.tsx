@@ -5,7 +5,7 @@ import Button from "~/components/button";
 function Hero() {
   return (
     <div
-      className="mx-auto flex h-full w-full items-center justify-center bg-cover"
+      className="mx-auto flex h-screen w-full items-center justify-center bg-cover"
       style={{
         backgroundImage: 'url("/hero/bg-wave.svg")',
         backgroundPosition: "800px",
@@ -183,6 +183,20 @@ function Featured() {
           <h1 className="font-title text-6xl leading-none">
             What do you wanna make today?
           </h1>
+          <div className="flex h-16 w-full gap-8">
+            <input
+              placeholder="Whatever you like!"
+              className="w-full rounded-md border-2 border-black pl-4 shadow-button outline-none"
+            ></input>
+            <Button className="aspect-square min-w-[64px] bg-yellow-600 p-2">
+              <Image
+                src="/navbar-logo.svg"
+                alt=" "
+                width={48}
+                height={48}
+              ></Image>
+            </Button>
+          </div>
           <div className="flex w-min items-center gap-4">
             <Image
               src="/featured/bracket-left.svg"
@@ -229,20 +243,6 @@ function Featured() {
             <p className="hover:underline">Grilled Cheese</p>
             <p className="hover:underline">Apple Pie</p>
             <p className="hover:underline">Tuna Sandwich</p>
-          </div>
-          <div className="flex h-16 w-full gap-8">
-            <input
-              placeholder="Whatever you like!"
-              className="w-full rounded-md border-2 border-black pl-4 shadow-button outline-none"
-            ></input>
-            <Button className="aspect-square min-w-[64px] bg-yellow-600 p-2">
-              <Image
-                src="/navbar-logo.svg"
-                alt=" "
-                width={48}
-                height={48}
-              ></Image>
-            </Button>
           </div>
         </section>
         <div
