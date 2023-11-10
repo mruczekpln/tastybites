@@ -29,42 +29,42 @@ export default function Footer() {
           <div>
             <Image
               src="/featured/symbol2.svg"
-              alt=" "
+              alt="symbol2"
               width={64}
               height={64}
               className="inline"
             ></Image>
             <Image
               src="/navbar-logo.svg"
-              alt=" "
+              alt="logo"
               width={64}
               height={64}
               className="inline"
             ></Image>
             <Image
               src="/featured/symbol2.svg"
-              alt=" "
+              alt="symbol2"
               width={64}
               height={64}
               className="inline"
             ></Image>
             <Image
               src="/navbar-logo.svg"
-              alt=" "
+              alt="logo"
               width={64}
               height={64}
               className="inline"
             ></Image>
             <Image
               src="/featured/symbol2.svg"
-              alt=" "
+              alt="symbol2"
               width={64}
               height={64}
               className="inline"
             ></Image>
             <Image
               src="/navbar-logo.svg"
-              alt=" "
+              alt="logo"
               width={64}
               height={64}
               className="inline"

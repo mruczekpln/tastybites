@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import NavLink from "~/components/link";
 import Button from "~/components/button";
 
 function Hero() {
@@ -18,7 +19,7 @@ function Hero() {
               Unlock the World of Culinary Creativity
               <Image
                 src="/hero/symbol1.svg"
-                alt="hero/photo"
+                alt="symbol1"
                 width={64}
                 height={64}
                 className="inline rotate-[100deg]"
@@ -28,7 +29,7 @@ function Hero() {
               Welcome to <u>TastyBites</u>
               <Image
                 src="/hero/symbol2.svg"
-                alt="hero/photo"
+                alt="symbol2"
                 width={32}
                 height={32}
                 className="relative bottom-1 inline"
@@ -45,7 +46,7 @@ function Hero() {
               </p>
               <Image
                 src="/hero/arrow1.svg"
-                alt=" "
+                alt="arrow1"
                 width={64}
                 height={64}
                 className="rotate-90"
@@ -53,18 +54,26 @@ function Hero() {
             </div>
           </div>
           <div className="flex items-center gap-8 justify-self-end">
-            <Button className="bg-yellow-500 px-6 py-4 text-3xl font-bold">
+            <NavLink
+              href="/recipes/create"
+              variant="button"
+              className="bg-yellow-500 px-6 py-4 text-3xl font-bold"
+            >
               Share your recipe
-            </Button>
-            <Button variant="ghost" className="px-8 py-4 text-2xl font-bold">
+            </NavLink>
+            <NavLink
+              href="/recipes"
+              variant="ghost"
+              className="px-8 py-4 text-2xl font-bold"
+            >
               Explore Recipes.
-            </Button>
+            </NavLink>
           </div>
         </section>
         <section className="flex h-[700px] min-w-[600px] items-center justify-center rounded-2xl border-2 border-black bg-yellow-200 duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:bg-yellow-500 hover:shadow-button">
           <Image
             src="/hero/illustration.svg"
-            alt="hero/photo"
+            alt="illustration"
             width={600}
             height={600}
           ></Image>
@@ -77,7 +86,7 @@ function Hero() {
 function PoweredBy() {
   return (
     <div className="flex h-32 w-full items-center justify-center gap-8 border-y-2 border-black bg-yellow-100">
-      <h3 className="text-xl font-bold">Powered by:</h3>
+      <p className="text-xl font-bold">Powered by:</p>
       <div className="flex items-center gap-12">
         <Link href="https://create.t3.gg" target="_blank">
           <Image
@@ -128,7 +137,7 @@ function Featured() {
             See featured{" "}
             <Image
               src="/featured/arrow1.svg"
-              alt=" "
+              alt="arrow1"
               width={48}
               height={48}
               className="inline"
@@ -138,7 +147,7 @@ function Featured() {
             <div className="flex h-10 items-center gap-2">
               <Image
                 src="/featured/arrow2.svg"
-                alt=""
+                alt="arrow2"
                 width={32}
                 height={32}
                 className="rotate-90"
@@ -183,31 +192,35 @@ function Featured() {
           <h1 className="font-title text-6xl leading-none">
             What do you wanna make today?
           </h1>
-          <div className="flex h-16 w-full gap-8">
+          <form className="flex h-16 w-full gap-8">
             <input
               placeholder="Whatever you like!"
               className="w-full rounded-md border-2 border-black pl-4 shadow-button outline-none"
             ></input>
-            <Button className="aspect-square min-w-[64px] bg-yellow-600 p-2">
+            <Button
+              name="submit"
+              type="submit"
+              className="aspect-square min-w-[64px] bg-yellow-600 p-2"
+            >
               <Image
                 src="/navbar-logo.svg"
-                alt=" "
+                alt="logo"
                 width={48}
                 height={48}
               ></Image>
             </Button>
-          </div>
+          </form>
           <div className="flex w-min items-center gap-4">
             <Image
               src="/featured/bracket-left.svg"
-              alt=" "
+              alt="bracket-left"
               width={32}
               height={32}
             ></Image>
             <p className="whitespace-nowrap text-2xl">Make it creative!</p>
             <Image
               src="/featured/bracket-right.svg"
-              alt=" "
+              alt="bracket-right"
               width={32}
               height={32}
             ></Image>
@@ -215,7 +228,7 @@ function Featured() {
           <div className="flex items-center gap-2">
             <Image
               src="/featured/symbol2.svg"
-              alt=" "
+              alt="symbol2"
               width={48}
               height={48}
               className="inline"
@@ -223,26 +236,26 @@ function Featured() {
             <p className="text-2xl font-extrabold">You can try:</p>
           </div>
           <div className="flex max-h-full flex-wrap gap-x-8 gap-y-2 [&>*]:cursor-default">
-            <p className="hover:underline">Spaghetti</p>
-            <p className="hover:underline">Burgers</p>
-            <p className="hover:underline">Salmon</p>
-            <p className="hover:underline">Pizza</p>
-            <p className="hover:underline">Tacos</p>
-            <p className="hover:underline">Chicken Curry</p>
-            <p className="hover:underline">Pasta Salad</p>
-            <p className="hover:underline">Lasagna</p>
-            <p className="hover:underline">Omelette</p>
-            <p className="hover:underline">Steak</p>
-            <p className="hover:underline">Avocado Toast</p>
-            <p className="hover:underline">Shrimp Scampi</p>
-            <p className="hover:underline">Chocolate Cake</p>
-            <p className="hover:underline">Veggie Stir-Fry</p>
-            <p className="hover:underline">Sushi</p>
-            <p className="hover:underline">Margarita Pizza</p>
-            <p className="hover:underline">Ramen</p>
-            <p className="hover:underline">Grilled Cheese</p>
-            <p className="hover:underline">Apple Pie</p>
-            <p className="hover:underline">Tuna Sandwich</p>
+            <NavLink className="hover:underline">Spaghetti</NavLink>
+            <NavLink className="hover:underline">Burgers</NavLink>
+            <NavLink className="hover:underline">Salmon</NavLink>
+            <NavLink className="hover:underline">Pizza</NavLink>
+            <NavLink className="hover:underline">Tacos</NavLink>
+            <NavLink className="hover:underline">Chicken Curry</NavLink>
+            <NavLink className="hover:underline">Pasta Salad</NavLink>
+            <NavLink className="hover:underline">Lasagna</NavLink>
+            <NavLink className="hover:underline">Omelette</NavLink>
+            <NavLink className="hover:underline">Steak</NavLink>
+            <NavLink className="hover:underline">Avocado Toast</NavLink>
+            <NavLink className="hover:underline">Shrimp Scampi</NavLink>
+            <NavLink className="hover:underline">Chocolate Cake</NavLink>
+            <NavLink className="hover:underline">Veggie Stir-Fry</NavLink>
+            <NavLink className="hover:underline">Sushi</NavLink>
+            <NavLink className="hover:underline">Margarita Pizza</NavLink>
+            <NavLink className="hover:underline">Ramen</NavLink>
+            <NavLink className="hover:underline">Grilled Cheese</NavLink>
+            <NavLink className="hover:underline">Apple Pie</NavLink>
+            <NavLink className="hover:underline">Tuna Sandwich</NavLink>
           </div>
         </section>
         <div
