@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavLink from "~/components/link";
 import Button from "~/components/button";
+import Input from "~/components/input";
 
 function Hero() {
   return (
@@ -193,10 +194,10 @@ function Featured() {
             What do you wanna make today?
           </h1>
           <form className="flex h-16 w-full gap-8">
-            <input
+            <Input
               placeholder="Whatever you like!"
-              className="w-full rounded-md border-2 border-black pl-4 shadow-button outline-none"
-            ></input>
+              className="w-full pl-4"
+            ></Input>
             <Button
               name="submit"
               type="submit"
