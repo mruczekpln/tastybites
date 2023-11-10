@@ -11,7 +11,7 @@ export default function Navbar() {
           <NavLink href="/">Home.</NavLink>
           <NavLink href="/recipes">Recipes.</NavLink>
           <NavLink
-            variant="border"
+            variant="button"
             className=" border-2 px-4 py-2"
             href="/recipes/create"
           >
@@ -19,7 +19,7 @@ export default function Navbar() {
           </NavLink>
           <div className="h-2 w-2 rounded-full bg-black"></div>
           <NavLink
-            variant="border"
+            variant="button"
             href="/auth/login"
             className="bg-yellow-500"
           >
