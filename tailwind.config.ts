@@ -12,9 +12,9 @@ export default {
       boxShadow: {
         button: "-2px 2px #000",
       },
-    },
-    maxWidth: {
-      "screen-2xl": "1440px",
+      maxWidth: {
+        "screen-2xl": "1440px",
+      },
     },
   },
   plugins: [],
