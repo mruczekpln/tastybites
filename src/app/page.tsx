@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import NavLink from "~/components/link";
-import Button from "~/components/button";
-import Input from "~/components/input";
+import Button from "~/components/ui/button";
+import Input from "~/components/ui/input";
 
 function Hero() {
   return (
