@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { type ComponentProps } from "react";
 import cn from "./cn";
-import Button from "./button";
+import Button from "./ui/button";
 
 type NavLinkProps = {
   variant?: "normal" | "button" | "ghost";

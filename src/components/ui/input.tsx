@@ -1,5 +1,5 @@
 import { type ComponentProps } from "react";
-import cn from "./cn";
+import cn from "../cn";
 
 type InputProps = { border?: boolean } & ComponentProps<"input">;
 export default function Input({ border = true, ...props }: InputProps) {
