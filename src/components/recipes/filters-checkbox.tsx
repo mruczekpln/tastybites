@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import cn from "./cn";
+import cn from "~/components/cn";
 
 type CheckboxProps = { name: string; children: ReactNode; className?: string };
 export default function Checkbox({ name, children, className }: CheckboxProps) {
