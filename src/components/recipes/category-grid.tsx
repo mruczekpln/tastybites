@@ -4,7 +4,7 @@ import { categories } from "~/lib/categories";
 
 export default function CategoryGrid() {
   return (
-    <main className="max-w-screen-xl grid h-full w-full grid-cols-3 grid-rows-2 gap-8 pb-16">
+    <main className="grid h-full w-full max-w-screen-xl grid-cols-3 grid-rows-2 gap-8 pb-16">
       {Object.values(categories)
         .slice(1)
         .map((item, index) => (
@@ -14,16 +14,13 @@ export default function CategoryGrid() {
             key={index}
           >
             <h2 className="text-3xl font-bold">{item.name}</h2>
-            {item.name !== "drinks." ? (
+            {item.imagePath && (
               <Image
-                src={item.href + ".png"}
+                src={item.imagePath}
                 alt={item.titleText}
                 width={item.imageSize ?? 80}
                 height={100}
-                // className="object-fill"h
               ></Image>
-            ) : (
-              "couldn't find drink symbol :("
             )}
             <p>{item.subtitleText}</p>
           </Link>
