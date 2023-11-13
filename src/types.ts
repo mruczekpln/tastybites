@@ -14,6 +14,7 @@ export type RecipeCategoryData = Record<
     titleText: string;
     subtitleText: string;
     href: string;
+    imagePath?: string;
     imageSize?: number;
   }
 >;

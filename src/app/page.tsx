@@ -236,27 +236,12 @@ function Featured() {
             ></Image>
             <p className="text-2xl font-extrabold">You can try:</p>
           </div>
-          <div className="flex max-h-full flex-wrap gap-x-8 gap-y-2 [&>*]:cursor-default">
-            <NavLink className="hover:underline">Spaghetti</NavLink>
-            <NavLink className="hover:underline">Burgers</NavLink>
-            <NavLink className="hover:underline">Salmon</NavLink>
-            <NavLink className="hover:underline">Pizza</NavLink>
-            <NavLink className="hover:underline">Tacos</NavLink>
-            <NavLink className="hover:underline">Chicken Curry</NavLink>
-            <NavLink className="hover:underline">Pasta Salad</NavLink>
-            <NavLink className="hover:underline">Lasagna</NavLink>
-            <NavLink className="hover:underline">Omelette</NavLink>
-            <NavLink className="hover:underline">Steak</NavLink>
-            <NavLink className="hover:underline">Avocado Toast</NavLink>
-            <NavLink className="hover:underline">Shrimp Scampi</NavLink>
-            <NavLink className="hover:underline">Chocolate Cake</NavLink>
-            <NavLink className="hover:underline">Veggie Stir-Fry</NavLink>
-            <NavLink className="hover:underline">Sushi</NavLink>
-            <NavLink className="hover:underline">Margarita Pizza</NavLink>
-            <NavLink className="hover:underline">Ramen</NavLink>
-            <NavLink className="hover:underline">Grilled Cheese</NavLink>
-            <NavLink className="hover:underline">Apple Pie</NavLink>
-            <NavLink className="hover:underline">Tuna Sandwich</NavLink>
+          <div className="flex max-h-full flex-wrap gap-x-8 gap-y-2 [&>*]:cursor-default [&>*]:text-3xl">
+            <NavLink className="hover:underline">for breakfast.</NavLink>
+            <NavLink className="hover:underline">for lunch.</NavLink>
+            <NavLink className="hover:underline">for dinner.</NavLink>
+            <NavLink className="hover:underline">a snack.</NavLink>
+            <NavLink className="hover:underline">as a drink.</NavLink>
           </div>
         </section>
         <div
