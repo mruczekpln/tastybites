@@ -8,21 +8,27 @@ import CookingTimeSlider from "./time-slider";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
+import { error } from "console";
 
 const formSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(3, { message: "Title is too short!" })
     .max(50, { message: "Title should not be longer than 50 characters." }),
   description: z
     .string()
+    .trim()
     .min(10, { message: "Describe your recipe!" })
     .max(100, { message: "Don't write a letter here!" }),
   ingredients: z
     .array(
       z.object({
         // id: z.string(),
-        name: z.string().min(1, { message: "Ingredients must have a name!" }),
+        name: z
+          .string()
+          .trim()
+          .min(1, { message: "Ingredients must have a name!" }),
         amount: z.coerce
           .number()
           .min(1, { message: "You must provide ingredient amount!" }),
@@ -32,7 +38,10 @@ const formSchema = z.object({
     .min(1, "You can't make a recipe without ingredients!"),
   instructions: z
     .string()
-    .min(10, { message: "Description is clearly too short." })
+    .trim()
+    .min(10, {
+      message: "Don't leave your instructions empty! (at least 10 characters)",
+    })
     .max(2000),
   category: z.union([
     z.literal("breakfast"),
@@ -43,8 +52,11 @@ const formSchema = z.object({
     z.literal("desserts"),
   ]),
   cookingTime: z.coerce.number().min(5).max(205),
-  difficultyLevel: z.string().min(3),
-  // servings: z.number().min(1),
+  difficultyLevel: z.union([
+    z.literal("easy"),
+    z.literal("intermediate"),
+    z.literal("advanced"),
+  ]),
 });
 
 export type FormSchema = z.infer<typeof formSchema>;
@@ -71,12 +83,19 @@ export default function CreateRecipeForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="mx-auto  flex w-full max-w-screen-2xl flex-col items-center gap-8 rounded-xl border-2 border-black bg-white p-16"
     >
-      <h1 className="mb-4 font-title text-6xl">Add your recipe!</h1>
+      <h1 className="mb-4 font-title text-6xl">Add your recipe! </h1>
       <div className="grid w-full grid-flow-row auto-rows-min grid-cols-2 gap-x-16 gap-y-8 border-t-2 border-black pt-8">
         <ImageUpload></ImageUpload>
         <div>
           <label>
-            <h2 className="mb-4 text-4xl font-bold">Title</h2>
+            <h2 className="mb-4 text-4xl font-bold">
+              Title
+              {errors && errors.title && (
+                <span className="ml-4 text-lg text-red-400">
+                  {errors.title.message}
+                </span>
+              )}
+            </h2>
             <Input
               kind="rhf"
               type="text"
@@ -89,6 +108,11 @@ export default function CreateRecipeForm() {
           <label>
             <h2 className="mb-4 mt-8 text-4xl font-semibold">
               Short Description
+              {errors && errors.description && (
+                <span className="ml-4 text-lg text-red-400">
+                  {errors.description.message}
+                </span>
+              )}
             </h2>
             <textarea
               rows={4}
@@ -99,7 +123,14 @@ export default function CreateRecipeForm() {
           </label>
         </div>
         <div className="flex flex-col gap-2">
-          <h2 className="mb-2 text-4xl font-bold">Ingredients</h2>
+          <h2 className="mb-2 text-4xl font-bold">
+            Ingredients
+            {errors && errors.ingredients && (
+              <span className="ml-4 text-lg text-red-400">
+                {errors.ingredients.root?.message ?? errors.ingredients.message}
+              </span>
+            )}
+          </h2>
           {fields.map((field, index) => (
             <div className="flex h-10 gap-4" key={field.id}>
               <Input
@@ -114,7 +145,7 @@ export default function CreateRecipeForm() {
                 register={register}
                 label={`ingredients.${index}.amount`}
                 placeholder="500"
-                className="w-20"
+                className="w-20 !pl-3"
               ></Input>
               <select
                 {...register(`ingredients.${index}.unit`)}
@@ -133,6 +164,7 @@ export default function CreateRecipeForm() {
             </div>
           ))}
           <Button
+            type="button"
             onClick={() => append({ name: "", amount: null, unit: "g" })}
             className="mt-4 w-full bg-yellow-500"
           >
@@ -140,7 +172,14 @@ export default function CreateRecipeForm() {
           </Button>
         </div>
         <label className="col-span-2">
-          <h2 className="mb-4 text-4xl font-bold">Instructions</h2>
+          <h2 className="mb-4 text-4xl font-bold">
+            Instructions
+            {errors && errors.instructions && (
+              <span className="ml-4 text-lg text-red-400">
+                {errors.instructions.message}
+              </span>
+            )}
+          </h2>
           <textarea
             placeholder="1. Prepare chicken"
             rows={8}
@@ -148,12 +187,16 @@ export default function CreateRecipeForm() {
             {...register("instructions")}
           />
         </label>
-        <label className="col-span-2 flex gap-8">
+        <label className="col-span-2 flex items-center gap-8">
           <h2 className="text-4xl font-bold">Category</h2>
           <select
             className="border-b-2 border-black pr-4 text-2xl"
+            defaultValue="default"
             {...register("category")}
           >
+            <option disabled value="default">
+              select category
+            </option>
             <option value="breakfast">breakfast.</option>
             <option value="lunch">lunch.</option>
             <option value="dinner">dinner.</option>
@@ -161,17 +204,31 @@ export default function CreateRecipeForm() {
             <option value="drinks">drinks.</option>
             <option value="desserts">desserts.</option>
           </select>
+          {errors && errors.category && (
+            <span className="text-lg font-bold text-red-400">
+              Select a category!
+            </span>
+          )}
         </label>
-        <label className="flex gap-8">
+        <label className="col-span-2 flex items-center gap-8">
           <h2 className="text-3xl font-bold">Difficulty level</h2>
           <select
             className="border-b-2 border-black pr-4 text-xl"
             {...register("difficultyLevel")}
+            defaultValue="default"
           >
+            <option disabled value="default">
+              select difficulty level
+            </option>
             <option value="easy">Easy</option>
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
+          {errors && errors.difficultyLevel && (
+            <span className="text-lg font-bold text-red-400">
+              Select a difficulty level!
+            </span>
+          )}
         </label>
         <label className="col-span-2 flex items-center gap-8">
           <h2 className="whitespace-nowrap text-3xl font-bold">Cooking Time</h2>
