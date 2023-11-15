@@ -3,7 +3,7 @@ import Checkbox from "./filters-checkbox";
 
 export default function Filters() {
   return (
-    <aside className="sticky top-20 h-min w-1/3 rounded-lg">
+    <aside className="h-min w-1/3 rounded-lg">
       <h1 className="mb-8 text-5xl font-extrabold">Filters</h1>
       <h2 className="mb-4 text-3xl font-semibold">
         <Image
@@ -22,6 +22,27 @@ export default function Filters() {
         <Checkbox name="40-60">40 mins to a hour</Checkbox>
         <Checkbox name="60-120">1 to 2 hours</Checkbox>
         <Checkbox name=">120">more than 2 hours</Checkbox>
+      </ul>
+      <h2 className="my-4 text-3xl font-semibold">
+        <Image
+          src="/hero/arrow1.svg"
+          alt="->"
+          width={48}
+          height={48}
+          className="inline rotate-90"
+        ></Image>{" "}
+        Difficulty Level
+      </h2>
+      <ul className="ml-8 flex flex-col gap-2 [&>*]:flex [&>*]:gap-4">
+        <Checkbox name="easy" className="flex">
+          Easy
+        </Checkbox>
+        <Checkbox name="intermediate" className="flex">
+          Intermediate
+        </Checkbox>
+        <Checkbox name="advanced" className="flex">
+          Advanced
+        </Checkbox>
       </ul>
       <h2 className="my-4 text-3xl font-semibold">
         <Image
