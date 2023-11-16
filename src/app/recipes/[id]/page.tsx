@@ -87,7 +87,7 @@ export default function Recipe() {
           </div>
         </div>
 
-        <h2 className="mb-4 mt-8 text-4xl font-bold">Ingredients</h2>
+        <h2 className="mb-4 mt-16 text-4xl font-bold">Ingredients</h2>
         <div className="grid grid-cols-4 gap-4 text-xl">
           {Array(5)
             .fill(null)
@@ -101,7 +101,7 @@ export default function Recipe() {
             ))}
         </div>
 
-        <h2 className="mb-4 mt-8 text-4xl font-bold">Instructions</h2>
+        <h2 className="mb-4 mt-16 text-4xl font-bold">Instructions</h2>
         <p className="text-xl">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam sed
           alias perferendis blanditiis voluptates labore dolore libero dolorem
@@ -128,7 +128,7 @@ export default function Recipe() {
           blanditiis sit voluptates magni dignissimos assumenda magnam.
         </p>
 
-        <div className="mt-8 flex gap-16">
+        <div className="mt-16 flex gap-16">
           <div className="w-2/3">
             <h2 className="text-4xl font-bold">Write your review</h2>
             <div className="my-4 flex items-center gap-4">
@@ -145,8 +145,8 @@ export default function Recipe() {
                 <CornerDownRight size={48}></CornerDownRight>
               </Button>
             </div>
-            <h2 className="my-4 text-4xl font-bold">Reviews</h2>
-            <div className="mb-6">
+            <h2 className="mb-6 mt-10 text-4xl font-bold">Reviews</h2>
+            <div className="mb-8 w-min rounded-lg border-2 border-black bg-yellow-50 px-6 py-4 shadow-button">
               {Array.from({ length: 5 }, (_, rowIndex) => (
                 <div key={rowIndex} className="my-2 flex items-center">
                   {Array.from({ length: 5 }, (_, starIndex) => (
@@ -160,10 +160,10 @@ export default function Recipe() {
                       size={32}
                     />
                   ))}
-                  <p className="ml-4 w-16 whitespace-nowrap">
+                  <p className="mx-8 whitespace-nowrap text-sm">
                     {5 - rowIndex} stars
                   </p>
-                  <p className="text-xl">4 reviews</p>
+                  <b className="whitespace-nowrap text-2xl">4</b>
                   {/* <p>3</p>
                   <p>0</p>
                   <p>0</p>
