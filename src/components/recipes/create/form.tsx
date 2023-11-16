@@ -32,7 +32,7 @@ const formSchema = z.object({
         amount: z.coerce
           .number()
           .min(1, { message: "You must provide ingredient amount!" }),
-        unit: z.union([z.literal("ml"), z.literal("g")]),
+        unit: z.union([z.literal("ml"), z.literal("g"), z.literal("pcs")]),
       }),
     )
     .min(1, "You can't make a recipe without ingredients!"),
@@ -153,6 +153,7 @@ export default function CreateRecipeForm() {
               >
                 <option value="g">grams</option>
                 <option value="ml">mililiters</option>
+                <option value="pcs">pieces</option>
               </select>
               <Button
                 type="button"
@@ -165,6 +166,7 @@ export default function CreateRecipeForm() {
           ))}
           <Button
             type="button"
+            // @ts-expect-error Not-Assignable
             onClick={() => append({ name: "", amount: null, unit: "g" })}
             className="mt-4 w-full bg-yellow-500"
           >
