@@ -1,10 +1,10 @@
-import CategoryList from "~/components/recipes/category-list";
-import Filters from "~/components/recipes/filters";
+import CategoryList from "~/components/recipes/category/category-list";
+import Filters from "~/components/recipes/category/filters";
 import Pagination from "~/components/recipes/pagination";
+import RecipeCard from "~/components/recipes/category/recipe-card";
+import SearchBar from "~/components/recipes/category/search-bar";
+import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
-import RecipeCard from "~/components/recipes/recipe-card";
-import SearchBar from "~/components/recipes/search-bar";
-import SortBy from "~/components/recipes/sort-by";
 import { categories } from "~/lib/categories";
 import { type RecipeCategory } from "~/types";
 
@@ -18,7 +18,10 @@ export default function Category({
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-screen-2xl flex-col items-center pt-32">
       <RouteDisplay
-        arr={currentCategory.href.split("/").slice(1)}
+        arr={[
+          { displayedName: "recipes", href: "/recipes" },
+          { displayedName: currentCategory.name },
+        ]}
       ></RouteDisplay>
       <div className="my-4">
         <h1 className="text-center font-title text-5xl font-extrabold">
