@@ -8,7 +8,7 @@ function OverviewCard({ className, children }: OverviewCardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border-2 border-black p-4 shadow-button",
+        "rounded-lg border-2 border-black bg-yellow-100 p-4 shadow-button",
         className,
       )}
     >
