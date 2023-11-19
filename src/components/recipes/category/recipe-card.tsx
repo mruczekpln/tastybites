@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function RecipeCard() {
   return (
-    <div className="flex h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-black duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:shadow-button">
+    <div className="flex h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-black bg-white duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:shadow-button">
       <div className="flex h-full w-1/2 flex-col justify-between border-r-2 border-black p-4">
         <div className="flex items-start justify-between">
           <div>
