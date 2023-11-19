@@ -20,7 +20,10 @@ export default function RecipeCard() {
               LUNCH
             </p> */}
           </div>
-          <Heart absoluteStrokeWidth size={32}></Heart>
+          <div className="flex items-center gap-2">
+            <p>32</p>
+            <Heart absoluteStrokeWidth size={32}></Heart>
+          </div>
         </div>
         <div className="flex items-end justify-between">
           <div className="flex items-center">
