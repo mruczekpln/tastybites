@@ -6,14 +6,13 @@ import Pagination from "~/components/recipes/pagination";
 export default function AccountRecipes() {
   return (
     <div className="w-full">
-      <h2 className="mb-4 text-5xl font-bold">Your recipes</h2>
-      <hr />
+      <h2 className="text-5xl font-bold ">Your recipes</h2>
       <div className="my-4 flex justify-between">
         <div className="flex items-center">
           <p className="mr-4 text-xl">All time stats:</p>
-          <Heart size={32}></Heart>
+          <Heart size={24}></Heart>
           <p className="mx-4 text-2xl">16</p>
-          <Bookmark size={32}></Bookmark>
+          <Bookmark size={24}></Bookmark>
           <p className="ml-4 text-2xl">3</p>
         </div>
       </div>
