@@ -14,6 +14,7 @@ export default {
       },
       maxWidth: {
         "screen-2xl": "1440px",
+        "screen-3xl": "1600px",
       },
     },
   },

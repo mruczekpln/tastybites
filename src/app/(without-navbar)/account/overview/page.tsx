@@ -19,19 +19,19 @@ function OverviewCard({ className, children }: OverviewCardProps) {
 
 export default function AccountOverview() {
   return (
-    <div className="flex h-auto w-full flex-col gap-8">
+    <div className="flex h-auto w-full max-w-screen-2xl flex-col gap-8">
       <h1 className="font-title text-5xl">Hello, cytryneq95</h1>
       <div className="flex w-full gap-8 [&>*]:w-full">
         <OverviewCard className="flex flex-wrap items-center justify-between">
           <h2 className="text-3xl font-bold">With us for</h2>
-          <p className="text-2xl">32 days</p>
+          <p className="w-1/2 text-right text-2xl">32 days</p>
           <p>
             since: <i>17th October</i>
           </p>
         </OverviewCard>
         <OverviewCard className="flex flex-wrap items-center justify-between">
           <h2 className="text-3xl font-bold">Saved Recipes</h2>
-          <p className="text-2xl">16</p>
+          <p className="w-1/3 text-right text-2xl">16</p>
           <u>
             go to favorites
             {/* <ChevronRight className="ml-2 inline" size={20}></ChevronRight> */}
@@ -39,7 +39,7 @@ export default function AccountOverview() {
         </OverviewCard>
         <OverviewCard className="flex flex-wrap items-center justify-between">
           <h2 className="text-3xl font-bold">Posted recipes</h2>
-          <p className="text-2xl">3</p>
+          <p className="w-1/3 text-right text-2xl">3</p>
           <u>
             go to your recipes
             {/* <ChevronRight className="ml-2 inline" size={20}></ChevronRight> */}

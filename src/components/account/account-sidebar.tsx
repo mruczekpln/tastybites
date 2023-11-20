@@ -1,69 +1,102 @@
 "use client";
 
-import { GanttChart, Library, Bookmark, Settings, LogOut } from "lucide-react";
+import {
+  Bookmark,
+  GanttChart,
+  Library,
+  LogOut,
+  Settings,
+  type LucideIcon,
+  Croissant,
+  ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import RouteDisplay from "../recipes/path-display";
+import { type ComponentProps } from "react";
+
+type SidebarLinkProps = {
+  pathname: string;
+  icon?: LucideIcon;
+  text: string;
+} & ComponentProps<"a">;
+function SidebarLink({
+  pathname,
+  icon: Icon,
+  href = "",
+  text,
+}: SidebarLinkProps) {
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-4 rounded-lg p-4 text-gray-100/50 duration-300 ${
+        pathname === href && "bg-yellow-950/30"
+      } hover:bg-yellow-950/50`}
+    >
+      {Icon && (
+        <Icon
+          size={32}
+          className={`stroke-yellow-700 ${
+            pathname !== href && "stroke-gray-100/50"
+          }`}
+        ></Icon>
+      )}
+      <p className={`text-xl ${pathname === href && "text-yellow-50"}`}>
+        {text}
+      </p>
+    </Link>
+  );
+}
 
 export default function AccountSidebar() {
   const pathname = usePathname();
   console.log(pathname);
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col gap-4">
-      <Link
+    <aside className="flex w-auto shrink-0 flex-col gap-4 whitespace-nowrap bg-black/90 p-8 text-gray-100">
+      <div className="mb-2 flex w-full max-w-screen-2xl items-center gap-2">
+        <Link href="/" className="font-title text-2xl hover:underline">
+          tastybites
+        </Link>
+        <ChevronRight></ChevronRight>
+        <p className="text-lg font-light">account</p>
+      </div>
+      <SidebarLink
+        pathname={pathname}
         href="/account/overview"
-        className={`flex items-center gap-4 rounded-lg p-4 duration-300 ${
-          pathname === "/account/overview" && "bg-gray-200"
-        } hover:bg-gray-200`}
-      >
-        <GanttChart size={32} className="stroke-yellow-700"></GanttChart>
-        <p className="text-xl">Overview</p>
-      </Link>
-      {/* <Link
-        href="/account/me"
-        className="flex items-center gap-4 rounded-lg p-4 duration-300 hover:bg-gray-200"
-      >
-        <User size={32} className="stroke-yellow-700"></User>
-        <p className="text-xl">Account</p>
-      </Link> */}
-      <hr />
-      <u className="ml-4 font-bold decoration-yellow-500">Recipes</u>
-      <Link
+        icon={GanttChart}
+        text="Overview"
+      ></SidebarLink>
+      {/* <hr /> */}
+      <p className="ml-8 font-bold text-gray-100/50">Recipes</p>
+      <SidebarLink
+        pathname={pathname}
         href="/account/recipes"
-        className={`flex items-center gap-4 rounded-lg p-4 duration-300 ${
-          pathname === "/account/recipes" && "bg-gray-200"
-        } hover:bg-gray-200`}
-      >
-        <Library size={32} className="stroke-yellow-700"></Library>
-        <p className="text-xl">Your Recipes</p>
-      </Link>
-      <Link
+        icon={Library}
+        text="Your Recipes"
+      ></SidebarLink>
+      <SidebarLink
+        pathname={pathname}
         href="/account/favorites"
-        className={`flex items-center gap-4 rounded-lg p-4 duration-300 ${
-          pathname === "/account/favorites" && "bg-gray-200"
-        } hover:bg-gray-200`}
-      >
-        <Bookmark size={32} className="stroke-yellow-700"></Bookmark>
-        <p className="text-xl">Favorites</p>
-      </Link>
-      <hr />
-      <Link
+        icon={Bookmark}
+        text="Favorites"
+      ></SidebarLink>
+      {/* <hr /> */}
+      <p className="ml-8 font-bold text-gray-100/50">Other</p>
+      <SidebarLink
+        pathname={pathname}
         href="/account/settings"
-        className={`flex items-center gap-4 rounded-lg p-4 duration-300 ${
-          pathname === "/account/settings" && "bg-gray-200"
-        } hover:bg-gray-200`}
-      >
-        <Settings size={32} className="stroke-yellow-700"></Settings>
-        <p className="text-xl">Settings</p>
-      </Link>
-      <hr />
-      <Link
+        icon={Settings}
+        text="Settings"
+      ></SidebarLink>
+      {/* <hr /> */}
+      <p className="ml-8 font-bold text-gray-100/50">Manage</p>
+      <SidebarLink
+        pathname={pathname}
         href="/auth/log-out"
-        className="flex items-center gap-4 rounded-lg p-4 duration-300 hover:bg-gray-200"
-      >
-        <LogOut size={32} className="stroke-yellow-700"></LogOut>
-        <p className=" text-xl font-bold">Log out</p>
-      </Link>
+        icon={LogOut}
+        text="Log out"
+      ></SidebarLink>
       {/* <Link
         href="/"
         className="flex items-center gap-4 rounded-lg bg-red-400 p-4"
