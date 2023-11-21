@@ -59,7 +59,7 @@ const formSchema = z.object({
   ]),
 });
 
-export type FormSchema = z.infer<typeof formSchema>;
+export type CreateRecipeFormSchema = z.infer<typeof formSchema>;
 
 export default function CreateRecipeForm() {
   const {
@@ -68,14 +68,15 @@ export default function CreateRecipeForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormSchema>({ resolver: zodResolver(formSchema) });
+  } = useForm<CreateRecipeFormSchema>({ resolver: zodResolver(formSchema) });
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "ingredients",
   });
 
-  const onSubmit: SubmitHandler<FormSchema> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) =>
+    console.log(data);
   console.log(errors);
 
   return (
@@ -96,7 +97,7 @@ export default function CreateRecipeForm() {
                 </span>
               )}
             </h2>
-            <Input
+            <Input<CreateRecipeFormSchema>
               kind="rhf"
               type="text"
               placeholder="Chicken wings..."
@@ -133,14 +134,14 @@ export default function CreateRecipeForm() {
           </h2>
           {fields.map((field, index) => (
             <div className="flex h-10 gap-4" key={field.id}>
-              <Input
+              <Input<CreateRecipeFormSchema>
                 kind="rhf"
                 register={register}
                 label={`ingredients.${index}.name`}
                 placeholder="Flour..."
                 className="w-full"
               ></Input>
-              <Input
+              <Input<CreateRecipeFormSchema>
                 kind="rhf"
                 register={register}
                 label={`ingredients.${index}.amount`}

@@ -1,5 +1,5 @@
 import { Heart, Bookmark } from "lucide-react";
-import RecipeCard from "~/components/recipes/category/recipe-card";
+import RecipeCard from "~/components/recipes/recipe-card";
 import SortBy from "~/components/recipes/category/sort-by";
 import Pagination from "~/components/recipes/pagination";
 

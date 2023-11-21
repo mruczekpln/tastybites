@@ -1,7 +1,7 @@
 import { Bookmark, Heart, Save } from "lucide-react";
 import { type ComponentProps } from "react";
 import cn from "~/components/cn";
-import RecipeCard from "~/components/recipes/category/recipe-card";
+import RecipeCard from "~/components/recipes/recipe-card";
 
 type OverviewCardProps = ComponentProps<"div">;
 function OverviewCard({ className, children }: OverviewCardProps) {
