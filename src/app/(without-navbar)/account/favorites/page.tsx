@@ -1,4 +1,4 @@
-import RecipeCard from "~/components/recipes/category/recipe-card";
+import RecipeCard from "~/components/recipes/recipe-card";
 import Pagination from "~/components/recipes/pagination";
 
 export default function AccountFavorites() {

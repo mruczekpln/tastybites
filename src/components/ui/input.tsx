@@ -1,9 +1,12 @@
 import { type ComponentProps } from "react";
 import cn from "../cn";
-import { type Path, type UseFormRegister } from "react-hook-form";
-import { type FormSchema } from "../recipes/create/form";
+import {
+  type FieldValues,
+  type Path,
+  type UseFormRegister,
+} from "react-hook-form";
 
-type InputProps =
+type InputProps<T extends FieldValues> =
   | {
       kind?: "regular";
       border?: boolean;
@@ -11,14 +14,14 @@ type InputProps =
   | {
       kind: "rhf";
       border?: boolean;
-      label: Path<FormSchema>;
-      register: UseFormRegister<FormSchema>;
+      label: Path<T>;
+      register: UseFormRegister<T>;
     };
 // ComponentProps<"input">;
-export default function Input({
+export default function Input<Schema extends FieldValues>({
   border = true,
   ...props
-}: InputProps & ComponentProps<"input">) {
+}: InputProps<Schema> & ComponentProps<"input">) {
   const kind = props.kind ?? "regular";
 
   if (props.kind === "rhf") {
