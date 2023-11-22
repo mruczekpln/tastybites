@@ -15,13 +15,17 @@ export default function NavLink({
 }: NavLinkProps) {
   if (variant === "normal")
     return (
-      <Link href={href} className={cn("text-xl hover:underline", className)}>
+      <Link
+        href={href}
+        prefetch={false}
+        className={cn("text-xl hover:underline", className)}
+      >
         {children}
       </Link>
     );
   else
     return (
-      <Link href={href}>
+      <Link href={href} prefetch={false}>
         <Button
           name="link"
           variant={variant === "ghost" ? variant : "normal"}

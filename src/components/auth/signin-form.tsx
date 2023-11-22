@@ -1,12 +1,16 @@
 "use client";
 
-import { LinkIcon, Github } from "lucide-react";
+import { LinkIcon } from "lucide-react";
 import Link from "next/link";
 import Button from "../ui/button";
 import Input from "../ui/input";
 import { z } from "zod";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type ClientSafeProvider } from "next-auth/react";
+import AuthWithGithub from "./auth-with-github";
+import { api } from "~/trpc/react";
+import NavLink from "../link";
 
 const formSchema = z
   .object({
@@ -32,17 +36,44 @@ const formSchema = z
 
 type SignInFormSchema = z.infer<typeof formSchema>;
 
-export default function SignInForm() {
+type SignInFormProps = { githubProvider: ClientSafeProvider };
+export default function SignInForm({ githubProvider }: SignInFormProps) {
   const {
     register,
     handleSubmit,
+    setError,
+    reset,
     formState: { errors },
   } = useForm<SignInFormSchema>({ resolver: zodResolver(formSchema) });
 
-  const onSubmit: SubmitHandler<SignInFormSchema> = (data) => console.log(data);
+  const createAccount = api.account.create.useMutation({
+    onError: (error) =>
+      setError("email", {
+        type: "custom",
+        message: error.message,
+      }),
+  });
+
+  const onSubmit: SubmitHandler<SignInFormSchema> = (data) => {
+    reset();
+    createAccount.mutate({
+      email: data.email,
+      password: data.password,
+      username: data.username,
+    });
+  };
   console.log(errors);
 
-  return (
+  return createAccount.isSuccess ? (
+    <div className="flex flex-col items-center gap-8">
+      <h1 className="mb-8 self-center font-title text-6xl">
+        Enjoy your time on TastyBites!
+      </h1>
+      <NavLink variant="button" href="/auth/login">
+        Go to login page!
+      </NavLink>
+    </div>
+  ) : (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="flex w-full max-w-xs flex-col items-stretch"
@@ -106,7 +137,10 @@ export default function SignInForm() {
         placeholder="Password"
         border
       ></Input>
-      <Button className=" bg-yellow-500 py-4 text-xl font-bold ">
+      <Button
+        disabled={createAccount.isLoading}
+        className=" bg-yellow-500 py-4 text-xl font-bold"
+      >
         Continue
       </Button>
       <p className="my-4 self-center">
@@ -117,10 +151,7 @@ export default function SignInForm() {
         </Link>
       </p>
       <hr />
-      <Button className="mt-4" variant="ghost">
-        Sign in with GitHub
-        <Github className="ml-4 inline"></Github>
-      </Button>
+      <AuthWithGithub githubProvider={githubProvider}></AuthWithGithub>
     </form>
   );
 }

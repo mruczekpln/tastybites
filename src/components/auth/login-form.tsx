@@ -1,12 +1,15 @@
 "use client";
 
-import { LinkIcon, Github } from "lucide-react";
+import { LinkIcon } from "lucide-react";
 import Button from "../ui/button";
 import Input from "../ui/input";
 import Link from "next/link";
 import { z } from "zod";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn, type ClientSafeProvider } from "next-auth/react";
+import AuthWithGithub from "./auth-with-github";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z
@@ -20,14 +23,37 @@ const formSchema = z.object({
 
 export type LoginFormSchema = z.infer<typeof formSchema>;
 
-export default function LogInForm() {
+type LogInFormProps = { githubProvider: ClientSafeProvider };
+export default function LogInForm({ githubProvider }: LogInFormProps) {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
+    reset,
+    setError,
     formState: { errors },
   } = useForm<LoginFormSchema>({ resolver: zodResolver(formSchema) });
 
-  const onSubmit: SubmitHandler<LoginFormSchema> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<LoginFormSchema> = async (data) => {
+    reset();
+
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+      callbackUrl: "/",
+    });
+
+    if (res?.error) {
+      const [errorField, errorMessage] = res.error.split(",");
+
+      setError(errorField as "email" | "password", {
+        type: "custom",
+        message: errorMessage,
+      });
+    } else void router.push("/");
+  };
   console.log(errors);
 
   return (
@@ -76,10 +102,7 @@ export default function LogInForm() {
         </Link>
       </p>
       <hr />
-      <Button className="mt-4" variant="ghost">
-        Sign in with GitHub
-        <Github className="ml-4 inline"></Github>
-      </Button>
+      <AuthWithGithub githubProvider={githubProvider}></AuthWithGithub>
     </form>
   );
 }
