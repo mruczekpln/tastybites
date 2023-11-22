@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   index,
   int,
@@ -16,10 +16,11 @@ export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
+  hashed_password: varchar("hashed_password", { length: 60 }),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     fsp: 3,
-  }).default(sql`CURRENT_TIMESTAMP(3)`),
+  }).defaultNow(),
   image: varchar("image", { length: 255 }),
 });
 

@@ -1,12 +1,13 @@
 import "~/styles/globals.css";
 
-import { Montserrat_Subrayada, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import Navbar from "~/components/navbar";
 import Footer from "~/components/footer";
+import AuthSessionProvider from "~/components/auth-session-provider";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -35,9 +36,11 @@ export default function RootLayout({
         className={`min-h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${titleFont.variable}`}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
+          {/* <AuthSessionProvider> */}
           <Navbar></Navbar>
           {children}
           <Footer></Footer>
+          {/* </AuthSessionProvider> */}
         </TRPCReactProvider>
       </body>
     </html>

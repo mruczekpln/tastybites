@@ -1,8 +1,16 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 import { type ReactNode } from "react";
 import AccountSidebar from "~/components/account/account-sidebar";
+import { getServerAuthSession } from "~/server/auth";
 
-export default function AccountLayout({ children }: { children: ReactNode }) {
+export default async function AccountLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const session = await getServerAuthSession();
+  if (!session) redirect("/auth/login");
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <AccountSidebar></AccountSidebar>

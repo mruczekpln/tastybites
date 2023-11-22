@@ -14,6 +14,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import RouteDisplay from "../recipes/path-display";
 import { type ComponentProps } from "react";
+import Button from "../ui/button";
+import { signOut } from "next-auth/react";
 
 type SidebarLinkProps = {
   pathname: string;
@@ -28,6 +30,7 @@ function SidebarLink({
 }: SidebarLinkProps) {
   return (
     <Link
+      prefetch={false}
       href={href}
       className={`flex items-center gap-4 rounded-lg p-4 text-gray-100/50 duration-300 ${
         pathname === href && "bg-yellow-950/30"
@@ -55,7 +58,11 @@ export default function AccountSidebar() {
   return (
     <aside className="flex w-auto shrink-0 flex-col gap-4 whitespace-nowrap bg-black/90 p-8 text-gray-100">
       <div className="mb-2 flex w-full max-w-screen-2xl items-center gap-2">
-        <Link href="/" className="font-title text-2xl hover:underline">
+        <Link
+          prefetch={false}
+          href="/"
+          className="font-title text-2xl hover:underline"
+        >
           tastybites
         </Link>
         <ChevronRight></ChevronRight>
@@ -91,12 +98,13 @@ export default function AccountSidebar() {
       ></SidebarLink>
       {/* <hr /> */}
       <p className="ml-8 font-bold text-gray-100/50">Manage</p>
-      <SidebarLink
-        pathname={pathname}
-        href="/auth/log-out"
-        icon={LogOut}
-        text="Log out"
-      ></SidebarLink>
+      <button
+        onClick={() => signOut({ callbackUrl: "/" })}
+        className="flex items-center gap-4 rounded-lg p-4 text-gray-100/50 duration-300 hover:bg-yellow-950/50"
+      >
+        <LogOut size={32} className="stroke-yellow-700"></LogOut>
+        <p className={'text-yellow-50"} text-xl'}>Log Out</p>
+      </button>
       {/* <Link
         href="/"
         className="flex items-center gap-4 rounded-lg bg-red-400 p-4"
