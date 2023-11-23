@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { categories } from "~/lib/categories";
+import { CATEGORIES } from "~/lib/categories";
 
 export default function CategoryGrid() {
   return (
     <main className="grid h-full w-full max-w-screen-xl grid-cols-3 grid-rows-2 gap-8 pb-16">
-      {Object.values(categories)
+      {Object.values(CATEGORIES)
         .slice(1)
         .map((item, index) => (
           <Link

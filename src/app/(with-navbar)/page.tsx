@@ -3,6 +3,7 @@ import Link from "next/link";
 import NavLink from "~/components/link";
 import Button from "~/components/ui/button";
 import Input from "~/components/ui/input";
+import { api } from "~/trpc/react";
 
 function Hero() {
   return (
