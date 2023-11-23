@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import bcrypt from "bcrypt";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
@@ -7,6 +7,9 @@ import { randomUUID } from "crypto";
 import { TRPCError } from "@trpc/server";
 
 export const accountRouter = createTRPCRouter({
+  protected: protectedProcedure.query(() => ({
+    message: "Hello from a protected procedure!",
+  })),
   create: publicProcedure
     .input(
       z.object({

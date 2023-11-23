@@ -5,7 +5,7 @@ import RecipeCard from "~/components/recipes/recipe-card";
 import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
-import { categories } from "~/lib/categories";
+import { CATEGORIES } from "~/lib/categories";
 import { type RecipeCategory } from "~/types";
 
 export default function Category({
@@ -13,7 +13,7 @@ export default function Category({
 }: {
   params: { category: RecipeCategory };
 }) {
-  const currentCategory = categories[params.category];
+  const currentCategory = CATEGORIES[params.category];
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-screen-2xl flex-col items-center pt-32">

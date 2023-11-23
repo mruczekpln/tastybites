@@ -1,6 +1,6 @@
 import { type RecipeCategoryData } from "~/types";
 
-export const categories: RecipeCategoryData = {
+export const CATEGORIES: RecipeCategoryData = {
   all: {
     name: "all.",
     titleText: "All Recipes & Cooking Ideas",
@@ -54,4 +54,4 @@ export const categories: RecipeCategoryData = {
       "Quench your thirst with a variety of refreshing and flavorful drink ideas.",
     href: "/recipes/category/drinks",
   },
-};
+} as const;

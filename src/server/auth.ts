@@ -29,11 +29,11 @@ declare module "next-auth" {
 }
 
 export const authOptions: NextAuthOptions = {
+  secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 3000,
   },
-  secret: env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/auth/login",
   },
