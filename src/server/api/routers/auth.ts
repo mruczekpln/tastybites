@@ -34,7 +34,7 @@ export const accountRouter = createTRPCRouter({
         id: randomUUID(),
         email: input.email,
         name: input.username,
-        hashed_password: hashedPassword,
+        hashedPassword,
       });
 
       return {

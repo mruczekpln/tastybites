@@ -53,7 +53,6 @@ function SidebarLink({
 
 export default function AccountSidebar() {
   const pathname = usePathname();
-  console.log(pathname);
 
   return (
     <aside className="flex w-auto shrink-0 flex-col gap-4 whitespace-nowrap bg-black/90 p-8 text-gray-100">
