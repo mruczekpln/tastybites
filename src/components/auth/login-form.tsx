@@ -54,7 +54,6 @@ export default function LogInForm({ githubProvider }: LogInFormProps) {
       });
     } else void router.push("/");
   };
-  console.log(errors);
 
   return (
     <form

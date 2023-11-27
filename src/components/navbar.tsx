@@ -7,9 +7,7 @@ import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
 
 export default async function Navbar() {
-  // const session = useSession();
   const session = await getServerAuthSession();
-  console.log("session in navbar", session);
 
   return (
     <div className="absolute z-10 w-full border-b-2 border-black bg-white text-black">

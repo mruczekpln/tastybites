@@ -9,9 +9,11 @@ import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { error } from "console";
+import { api } from "~/trpc/react";
+import { randomUUID } from "crypto";
 
 const formSchema = z.object({
-  title: z
+  name: z
     .string()
     .trim()
     .min(3, { message: "Title is too short!" })
@@ -75,9 +77,16 @@ export default function CreateRecipeForm() {
     name: "ingredients",
   });
 
-  const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) =>
+  const addRecipe = api.recipe.add.useMutation();
+
+  const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) => {
     console.log(data);
-  console.log(errors);
+
+    addRecipe.mutate({
+      ...data,
+      images: ["imagelink1", "imagelink2", "imagelink3"],
+    });
+  };
 
   return (
     <form
@@ -91,9 +100,9 @@ export default function CreateRecipeForm() {
           <label>
             <h2 className="mb-4 text-4xl font-bold">
               Title
-              {errors && errors.title && (
+              {errors && errors.name && (
                 <span className="ml-4 text-lg text-red-400">
-                  {errors.title.message}
+                  {errors.name.message}
                 </span>
               )}
             </h2>
@@ -102,7 +111,7 @@ export default function CreateRecipeForm() {
               type="text"
               placeholder="Chicken wings..."
               className="h-16 w-full pl-4 text-xl outline-none"
-              label="title"
+              label="name"
               register={register}
             />
           </label>

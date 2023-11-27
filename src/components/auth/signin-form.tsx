@@ -62,7 +62,6 @@ export default function SignInForm({ githubProvider }: SignInFormProps) {
       username: data.username,
     });
   };
-  console.log(errors);
 
   return createAccount.isSuccess ? (
     <div className="flex flex-col items-center gap-8">

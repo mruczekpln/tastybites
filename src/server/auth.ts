@@ -69,12 +69,11 @@ export const authOptions: NextAuthOptions = {
 
         const isPasswordValid = await bcrypt.compare(
           password,
-          user.hashed_password!,
+          user.hashedPassword!,
         );
 
         if (!isPasswordValid) throw new Error("password,Wrong password!");
 
-        console.log("user in credentials", user);
         return user;
       },
     }),
