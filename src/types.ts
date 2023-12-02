@@ -1,6 +1,17 @@
 import { type InferSelectModel } from "drizzle-orm";
 import { type recipeReviews } from "./server/db/schema";
 
+export type RecipeListItem = {
+  id: string;
+  name: string;
+  cookingTime: number;
+  difficultyLevel: string;
+  likeCount: number;
+  username: string | null;
+  reviewCount: number;
+  isUserLiking: 0 | 1;
+};
+
 export type RecipeCategory =
   | "all"
   | "breakfast"
