@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CATEGORIES } from "~/lib/categories";
+import { CATEGORIES } from "~/lib/constants";
 
 export default function CategoryGrid() {
   return (

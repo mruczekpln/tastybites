@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CATEGORIES } from "~/lib/categories";
+import { CATEGORIES } from "~/lib/constants";
 
 export default function CategoryList() {
   const pathname = usePathname();

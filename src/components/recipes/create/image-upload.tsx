@@ -1,9 +1,10 @@
 "use client";
 
-import { X, Plus } from "lucide-react";
-import { useState, useEffect, type ChangeEvent } from "react";
-import Button from "~/components/ui/button";
+import { randomUUID } from "crypto";
+import { Plus, X } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState, type ChangeEvent } from "react";
+import Button from "~/components/ui/button";
 
 type FileData = {
   index: string;
@@ -21,7 +22,7 @@ export default function ImageUpload() {
     const imageUrl = URL.createObjectURL(selectedFile);
     setFiles((prev) => [
       ...prev,
-      { index: crypto.randomUUID(), file: selectedFile, url: imageUrl },
+      { index: randomUUID(), file: selectedFile, url: imageUrl },
     ]);
 
     return () => files.forEach(({ url }) => URL.revokeObjectURL(url));

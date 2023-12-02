@@ -1,3 +1,6 @@
+import { type InferSelectModel } from "drizzle-orm";
+import { type recipeReviews } from "./server/db/schema";
+
 export type RecipeCategory =
   | "all"
   | "breakfast"
@@ -18,3 +21,14 @@ export type RecipeCategoryData = Record<
     imageSize?: number;
   }
 >;
+
+type ReviewUser = {
+  users: {
+    image: string | null;
+    name: string | null;
+  };
+};
+
+export interface Review
+  extends InferSelectModel<typeof recipeReviews>,
+    ReviewUser {}
