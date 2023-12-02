@@ -19,7 +19,7 @@ export default function Button({
   return (
     <button
       className={cn(
-        "whitespace-nowrap rounded-md px-4 py-2 text-lg duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] disabled:opacity-80",
+        "whitespace-nowrap rounded-md px-4 py-2 text-lg duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] disabled:opacity-70",
         buttonStyling,
         className,
       )}

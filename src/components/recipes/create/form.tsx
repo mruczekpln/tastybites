@@ -1,16 +1,15 @@
 "use client";
 
-import Input from "~/components/ui/input";
-import ImageUpload from "./image-upload";
-import { z } from "zod";
-import Button from "~/components/ui/button";
-import CookingTimeSlider from "./time-slider";
-import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { error } from "console";
+import { useRouter } from "next/navigation";
+import { useFieldArray, useForm, type SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import Button from "~/components/ui/button";
+import Input from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import { randomUUID } from "crypto";
+import ImageUpload from "./image-upload";
+import CookingTimeSlider from "./time-slider";
 
 const formSchema = z.object({
   name: z
@@ -64,11 +63,12 @@ const formSchema = z.object({
 export type CreateRecipeFormSchema = z.infer<typeof formSchema>;
 
 export default function CreateRecipeForm() {
+  const router = useRouter();
+
   const {
     register,
     control,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<CreateRecipeFormSchema>({ resolver: zodResolver(formSchema) });
 
@@ -80,12 +80,17 @@ export default function CreateRecipeForm() {
   const addRecipe = api.recipe.add.useMutation();
 
   const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) => {
-    console.log(data);
-
-    addRecipe.mutate({
-      ...data,
-      images: ["imagelink1", "imagelink2", "imagelink3"],
-    });
+    addRecipe.mutate(
+      {
+        ...data,
+        images: ["imagelink1", "imagelink2", "imagelink3"],
+      },
+      {
+        onSuccess: ({ id }) => {
+          router.push(`/recipes/${id}`);
+        },
+      },
+    );
   };
 
   return (

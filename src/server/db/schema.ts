@@ -21,6 +21,7 @@ export const users = mysqlTable("user", {
   hashedPassword: varchar("hashed_password", { length: 60 }),
   emailVerified: boolean("emailVerified").default(false),
   image: varchar("image", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -77,13 +78,16 @@ export const recipes = mysqlTable("recipe", {
   category: varchar("category", { length: 10 }).notNull(),
   cookingTime: smallint("cooking_time").notNull(),
   difficultyLevel: varchar("difficulty_level", { length: 12 }).notNull(),
+  // likes: int("likes").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const recipesRelations = relations(recipes, ({ one, many }) => ({
-  user: one(users, { fields: [recipes.userId], references: [users.id] }),
+  users: one(users, { fields: [recipes.userId], references: [users.id] }),
   recipeImages: many(recipeImages),
   recipeIngredients: many(recipeIngredients),
   recipeLikes: many(recipeLikes),
+  recipeReviews: many(recipeReviews),
 }));
 
 export const recipeImages = mysqlTable("recipe_image", {
@@ -119,7 +123,6 @@ export const recipeIngredients = mysqlTable("recipe_ingredient", {
   recipeId: varchar("recipe_id", { length: 36 }).notNull(),
   name: varchar("name", { length: 50 }).notNull(),
   amount: smallint("amount").notNull(),
-  // unit: varchar("unit", { length: 2 }).notNull(),
   unit: mysqlEnum("unit", ["g", "ml", "pcs"]),
 });
 
@@ -143,7 +146,7 @@ export const recipeReviews = mysqlTable("recipe_review", {
 });
 
 export const recipeReviewsRelations = relations(recipeReviews, ({ one }) => ({
-  user: one(users, { fields: [recipeReviews.userId], references: [users.id] }),
+  users: one(users, { fields: [recipeReviews.userId], references: [users.id] }),
   recipe: one(recipes, {
     fields: [recipeReviews.recipeId],
     references: [recipes.id],

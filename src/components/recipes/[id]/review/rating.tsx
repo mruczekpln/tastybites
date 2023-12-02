@@ -2,13 +2,26 @@
 
 import { Star } from "lucide-react";
 import { useState } from "react";
+import { type UseFormSetValue } from "react-hook-form";
 
-export default function ReviewRating() {
+type RecipeReviewFormRatingProps = {
+  setValue: UseFormSetValue<{
+    rating: number;
+    content: string;
+  }>;
+  isSubmitted: boolean;
+};
+export default function RecipeReviewFormRating({
+  setValue,
+  isSubmitted,
+}: RecipeReviewFormRatingProps) {
   const [stars, setStars] = useState<
     ("hovered" | "selected" | "unselected" | "selected-hovered")[]
   >(new Array(5).fill("unselected"));
 
   function onEnter(enteredIndex: number) {
+    if (isSubmitted) return;
+
     setStars((prev) =>
       prev.map((starState, index) => {
         if (index <= enteredIndex) {
@@ -24,6 +37,8 @@ export default function ReviewRating() {
   }
 
   function onLeave() {
+    if (isSubmitted) return;
+
     setStars((prev) =>
       prev.map((starState) => {
         if (starState in ["selected", "unselected"]) return starState;
@@ -35,11 +50,15 @@ export default function ReviewRating() {
   }
 
   function onClick(enteredIndex: number) {
+    if (isSubmitted) return;
+
     setStars((prev) =>
       prev.map((_, index) =>
         index <= enteredIndex ? "selected" : "unselected",
       ),
     );
+
+    setValue("rating", enteredIndex + 1);
   }
 
   return (
@@ -53,18 +72,15 @@ export default function ReviewRating() {
               : starState === "selected"
                 ? "fill-yellow-600"
                 : "fill-yellow-500"
-          }`}
+          }
+          ${isSubmitted && "opacity-50"}
+          `}
           onMouseEnter={() => onEnter(index)}
           onMouseLeave={() => onLeave()}
           onClick={() => onClick(index)}
           size={40}
         ></Star>
       ))}
-      {/* <Star className="fill-yellow-600 stroke-none" size={48}></Star>
-      <Star className="fill-yellow-600 stroke-none" size={48}></Star>
-      <Star className="fill-yellow-600 stroke-none" size={48}></Star>
-      <Star className="fill-gray-300 stroke-none" size={48}></Star>
-      <Star className="fill-gray-300 stroke-none" size={48}></Star> */}
     </div>
   );
 }

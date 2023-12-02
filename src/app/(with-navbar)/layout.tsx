@@ -2,12 +2,11 @@ import "~/styles/globals.css";
 
 import { Space_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
-import { cookies } from "next/headers";
 
-import { TRPCReactProvider } from "~/trpc/react";
-import Navbar from "~/components/navbar";
+import { cookies } from "next/headers";
 import Footer from "~/components/footer";
-import AuthSessionProvider from "~/components/auth-session-provider";
+import Navbar from "~/components/navbar";
+import { TRPCReactProvider } from "~/trpc/react";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],

@@ -5,7 +5,7 @@ import RecipeCard from "~/components/recipes/recipe-card";
 import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
-import { CATEGORIES } from "~/lib/categories";
+import { CATEGORIES } from "~/lib/constants";
 import { type RecipeCategory } from "~/types";
 
 export default function Category({
