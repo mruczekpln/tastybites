@@ -1,22 +1,25 @@
-import { eq, sql, type SQL } from "drizzle-orm";
+import { eq, sql, and, type SQL, like } from "drizzle-orm";
 import CategoryList from "~/components/recipes/category/category-list";
 import Filters from "~/components/recipes/category/filters";
+import RecipeList from "~/components/recipes/category/recipe-list";
 import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import Pagination from "~/components/recipes/pagination";
 import RouteDisplay from "~/components/recipes/path-display";
 import RecipeCard from "~/components/recipes/recipe-card";
 import { CATEGORIES } from "~/lib/constants";
+import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { recipeLikes, recipeReviews, recipes, users } from "~/server/db/schema";
-import { type RecipeCategory } from "~/types";
+import { type RecipeListItem, type RecipeCategory } from "~/types";
 
 const getRecipes =
   // cache(
-  async (category: RecipeCategory) => {
+  async (category: RecipeCategory, userId?: string, searchParams?: string) => {
     const where: SQL[] = [];
 
     if (category !== "all") where.push(eq(recipes.category, category));
+    if (searchParams) where.push(like(recipes.name, `%${searchParams}%`));
 
     const recipeList = await db
       .select({
@@ -25,37 +28,26 @@ const getRecipes =
         difficultyLevel: recipes.difficultyLevel,
         cookingTime: recipes.cookingTime,
         username: users.name,
-        like_count: sql`COALESCE(COUNT(${recipeLikes.id}), 0)`,
-        review_count: sql`COALESCE(COUNT(${recipeReviews.id}), 0)`,
+        likeCount: sql<number>`COALESCE(COUNT(${recipeLikes.id}), 0)`,
+        reviewCount: sql<number>`COALESCE(COUNT(${recipeReviews.id}), 0)`,
+        ...(userId
+          ? {
+              isUserLiking: sql.raw(
+                `MAX(CASE WHEN tastybites_recipe_like.user_id = '${userId}' THEN 1 ELSE 0 END)`,
+              ),
+            }
+          : {}),
       })
       .from(recipes)
       .leftJoin(users, eq(recipes.userId, users.id))
       .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
       .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-      .groupBy(recipes.id, users.name);
-
-    // .from(recipes)
-    // .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-    // .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
-    // .leftJoin(users, eq(recipes.userId, users.id))
-    // .where(and(...where))
-    // .groupBy(
-    //   recipes.id,
-    //   // recipeLikes.id,
-    //   // recipeReviews.id,
-    //   // recipes.instructions,
-    //   // recipes.userId,
-    //   // recipes.name,
-    //   // recipes.description,
-    //   // recipes.category,
-    //   // recipes.cookingTime,
-    //   // recipes.difficultyLevel,
-    //   // recipes.createdAt,
-    // );
+      .groupBy(recipes.id, users.name)
+      .where(and(...where));
 
     console.log(recipeList);
 
-    return recipeList;
+    return recipeList as RecipeListItem[];
   };
 //   undefined,
 //   { revalidate: 5 },
@@ -63,10 +55,17 @@ const getRecipes =
 
 export default async function Category({
   params,
+  searchParams,
 }: {
   params: { category: RecipeCategory };
+  searchParams: { searchQuery: string };
 }) {
-  const recipeList = await getRecipes(params.category);
+  const session = await getServerAuthSession();
+  const recipeList = await getRecipes(
+    params.category,
+    session?.user.id,
+    searchParams.searchQuery,
+  );
   const currentCategoryDetails = CATEGORIES[params.category];
 
   return (
@@ -85,20 +84,13 @@ export default async function Category({
           {currentCategoryDetails.subtitleText}
         </p>
       </div>
-      <SearchBar></SearchBar>
+      <SearchBar category={params.category}></SearchBar>
       <div className="flex w-full justify-between">
         <CategoryList></CategoryList>
         <SortBy></SortBy>
       </div>
-      <div className="mb-12 mt-8 flex w-full max-w-screen-2xl gap-12">
-        <Filters></Filters>
-        <section className="flex w-2/3 flex-col gap-8">
-          {recipeList.map((recipe, index) => (
-            <RecipeCard data={recipe} key={index}></RecipeCard>
-          ))}
-          <Pagination></Pagination>
-        </section>
-      </div>
+      {/* <RecipeList recipeList={recipes}></RecipeList> */}
+      <RecipeList recipeList={recipeList}></RecipeList>
     </div>
   );
 }

@@ -1,20 +1,12 @@
+"use client";
+
 import { Clock, Heart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { type RecipeListItem } from "~/types";
 
 type RecipeCardProps = {
-  data: {
-    id: string;
-    name: string;
-    // createdAt: Date;
-    // description: string;
-    // userId: string;
-    // instructions: string;
-    // category: string;
-    cookingTime: number;
-    difficultyLevel: string;
-    likeCount: number;
-  };
+  data: RecipeListItem;
 };
 export default function RecipeCard({
   data: {
@@ -22,7 +14,10 @@ export default function RecipeCard({
     name,
     difficultyLevel,
     cookingTime,
-    // createdAt,
+    username,
+    likeCount,
+    reviewCount,
+    isUserLiking,
   },
 }: RecipeCardProps) {
   return (
@@ -41,15 +36,19 @@ export default function RecipeCard({
               <Star className=" fill-yellow-600 stroke-none" size={20}></Star>
               <Star className="fill-gray-300 stroke-none" size={20}></Star>
               <Star className="fill-gray-300 stroke-none" size={20}></Star>
-              <p className="ml-2 text-sm">reviewCount</p>
+              <p className="ml-2 text-sm">{reviewCount}</p>
             </div>
             {/* <p className="mt-2 w-min rounded-lg bg-cyan-300 p-1 px-2 text-sm font-bold text-yellow-900">
               LUNCH
             </p> */}
           </div>
           <div className="flex items-center gap-2">
-            <p>likesAmount</p>
-            <Heart absoluteStrokeWidth size={32}></Heart>
+            <p>{likeCount}</p>
+            <Heart
+              absoluteStrokeWidth
+              fill={Number(isUserLiking) === 1 ? "black" : "transparent"}
+              size={32}
+            ></Heart>
           </div>
         </div>
         <div className="flex items-end justify-between">
@@ -64,7 +63,7 @@ export default function RecipeCard({
           </div>
           <p className="cursor-pointer whitespace-nowrap">
             <b className="pr-2">recipe by:</b>{" "}
-            <span className="hover:underline">username 1</span>
+            <span className="hover:underline">{username}</span>
           </p>
         </div>
       </div>

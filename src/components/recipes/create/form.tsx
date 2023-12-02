@@ -69,7 +69,7 @@ export default function CreateRecipeForm() {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CreateRecipeFormSchema>({ resolver: zodResolver(formSchema) });
 
   const { fields, append, remove } = useFieldArray({
@@ -256,6 +256,7 @@ export default function CreateRecipeForm() {
         </label>
       </div>
       <Button
+        disabled={isSubmitting || isSubmitSuccessful}
         type="submit"
         className="h-24 w-full bg-yellow-500 text-3xl font-bold duration-300"
       >
