@@ -5,7 +5,7 @@ export default function SortBy() {
         sort by
       </label>
       <select name="sort-by" id="sort-by">
-        <option value="views">most views</option>
+        <option value="views">most likes</option>
         <option value="rating">rating</option>
         <option value="latest">latest</option>
         <option value="name">by name</option>

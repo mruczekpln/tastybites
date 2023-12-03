@@ -2,7 +2,6 @@
 
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Router from "next/router";
 import { useEffect, useState } from "react";
 import Input from "~/components/ui/input";
 
@@ -14,14 +13,16 @@ export default function SearchBar({ category }: SearchBarProps) {
 
   const [inputValue, setInputValue] = useState<string>("");
 
-  const onTimeout = () =>
-    router.replace(`/recipes/category/${category}?searchQuery=${inputValue}`);
-
   useEffect(() => {
-    const timeout = setTimeout(onTimeout, 500);
+    const timeout = setTimeout(() => {
+      if (inputValue.trim() !== "")
+        router.replace(
+          `/recipes/category/${category}?searchQuery=${inputValue}`,
+        );
+    }, 500);
 
     return () => clearTimeout(timeout);
-  }, [inputValue]);
+  }, [inputValue, category, router]);
 
   return (
     <div className="max mb-8 mt-4 flex h-16 w-full items-center rounded-md border-2 border-black bg-yellow-100 px-8 shadow-button">
