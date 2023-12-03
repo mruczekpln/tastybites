@@ -16,7 +16,7 @@ const formSchema = z.object({
     .max(5),
   content: z
     .string()
-    .min(20, { message: "Review can't be that short! " })
+    .min(16, { message: "Review can't be that short! " })
     .max(250, { message: "Now it's too long! 250 characters max" }),
 });
 

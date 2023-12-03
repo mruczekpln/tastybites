@@ -1,22 +1,24 @@
-"use client";
-
 import { Clock, Heart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { type RecipeListItem } from "~/types";
 
 type RecipeCardProps = {
+  showCategory: boolean;
   data: RecipeListItem;
 };
 export default function RecipeCard({
+  showCategory,
   data: {
     id,
     name,
+    category,
     difficultyLevel,
     cookingTime,
     username,
     likeCount,
     reviewCount,
+    averageRating,
     isUserLiking,
   },
 }: RecipeCardProps) {
@@ -30,17 +32,29 @@ export default function RecipeCard({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-3xl leading-none">{name}</h2>
-            <div className="mt-2 flex gap-[2px]">
-              <Star className=" fill-yellow-600 stroke-none" size={20}></Star>
-              <Star className=" fill-yellow-600 stroke-none" size={20}></Star>
-              <Star className=" fill-yellow-600 stroke-none" size={20}></Star>
-              <Star className="fill-gray-300 stroke-none" size={20}></Star>
-              <Star className="fill-gray-300 stroke-none" size={20}></Star>
-              <p className="ml-2 text-sm">{reviewCount}</p>
-            </div>
-            {/* <p className="mt-2 w-min rounded-lg bg-cyan-300 p-1 px-2 text-sm font-bold text-yellow-900">
-              LUNCH
-            </p> */}
+            {reviewCount > 0 ? (
+              <div className="mt-2 flex gap-[2px]">
+                {Array.from({ length: 5 }, (_, starIndex) => (
+                  <Star
+                    key={starIndex}
+                    className={
+                      starIndex >= Math.round(averageRating)
+                        ? "fill-gray-300 stroke-none"
+                        : "fill-yellow-600 stroke-none"
+                    }
+                    size={18}
+                  />
+                ))}
+                <p className="ml-2 text-sm">{reviewCount} reviews</p>
+              </div>
+            ) : (
+              <p className="mt-1 text-sm">0 reviews</p>
+            )}
+            {showCategory && (
+              <p className="mt-2 w-min rounded-lg bg-yellow-500 p-1 px-2 text-sm font-bold text-yellow-900">
+                {category.toUpperCase()}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <p>{likeCount}</p>

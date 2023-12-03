@@ -95,7 +95,10 @@ export default async function Recipe({ params }: { params: { id: string } }) {
         <RouteDisplay
           arr={[
             { displayedName: "recipes", href: "/recipes" },
-            { displayedName: "dinner", href: "/recipes/category/dinner" },
+            {
+              displayedName: recipeData?.category ?? "",
+              href: `/recipes/category/${recipeData?.category ?? "dinner"}`,
+            },
             { displayedName: "Burger" },
           ]}
         ></RouteDisplay>
@@ -126,6 +129,7 @@ export default async function Recipe({ params }: { params: { id: string } }) {
           ></RecipeSummary>
         </div>
 
+        {/* @ts-expect-error Async Server Component  */}
         <RecipeIngredientList recipeId={params.id}></RecipeIngredientList>
 
         <h2 className="mb-4 mt-16 text-4xl font-bold">Instructions</h2>

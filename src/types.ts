@@ -6,9 +6,11 @@ export type RecipeListItem = {
   name: string;
   cookingTime: number;
   difficultyLevel: string;
+  category: string;
   likeCount: number;
   username: string | null;
   reviewCount: number;
+  averageRating: number;
   isUserLiking: 0 | 1;
 };
 
