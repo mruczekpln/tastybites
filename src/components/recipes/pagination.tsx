@@ -1,19 +1,14 @@
 "use client";
 
-import {
-  ChevronFirst,
-  ChevronLast,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { type ChangeEvent } from "react";
+import getNewParams from "~/lib/get-new-params";
 
 type PaginationProps = {
-  recipeCount: number;
+  totalRecipes: number;
 };
-export default function Pagination({ recipeCount }: PaginationProps) {
-  // const router = useRouter();
+export default function Pagination({ totalRecipes }: PaginationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,64 +19,55 @@ export default function Pagination({ recipeCount }: PaginationProps) {
     ...Object.fromEntries(searchParams.entries()),
   };
 
-  const lastPage = Math.ceil(recipeCount / params.perPage);
+  function onSelectChange(e: ChangeEvent<HTMLSelectElement>) {
+    router.replace(
+      getNewParams(pathname, {
+        ...params,
+        page: "1",
+        perPage: e.target.value.toString(),
+      }),
+    );
+  }
+
+  // const lastPage = Math.ceil(recipeCount / Number(params.perPage));
 
   return (
     <div className="flex w-full justify-between">
       <div className="flex h-16 items-center">
         {params.page > 1 && (
-          <>
-            {params.page > 2 && (
-              <Link
-                href={{
-                  pathname,
-                  query: { ...params, page: "1" },
-                }}
-                className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
-              >
-                <ChevronFirst className="rounded-lg hover:bg-gray-100"></ChevronFirst>
-              </Link>
-            )}
-            <Link
-              href={{
-                pathname,
-                query: { ...params, page: Number(params.page) - 1 },
-              }}
-              className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
-            >
-              <ChevronLeft className="rounded-lg hover:bg-gray-100"></ChevronLeft>
-            </Link>
-          </>
+          <button
+            onClick={() => {
+              router.replace(
+                getNewParams(pathname, {
+                  ...params,
+                  perPage: params.perPage.toString(),
+                  page: (Number(params.page) - 1).toString(),
+                }),
+              );
+            }}
+            className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
+          >
+            <ChevronLeft className="rounded-lg hover:bg-gray-100"></ChevronLeft>
+          </button>
         )}
         <p className="mx-8 text-3xl font-bold">
           {searchParams.get("page") ?? 1}
         </p>
-        {params.page < lastPage && (
-          <>
-            <Link
-              href={{
-                pathname,
-                query: { ...params, page: Number(params.page) + 1 },
-              }}
-              className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
-            >
-              <ChevronRight className="rounded-lg hover:bg-gray-100"></ChevronRight>
-            </Link>
-            {params.page < lastPage - 1 && (
-              <Link
-                href={{
-                  pathname,
-                  query: {
-                    ...params,
-                    page: lastPage,
-                  },
-                }}
-                className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
-              >
-                <ChevronLast className="rounded-lg hover:bg-gray-100"></ChevronLast>
-              </Link>
-            )}
-          </>
+        {totalRecipes === 11 && (
+          <button
+            onClick={() => {
+              router.replace(
+                getNewParams(pathname, {
+                  ...params,
+                  perPage: params.perPage.toString(),
+                  page: (Number(params.page) + 1).toString(),
+                }),
+              );
+            }}
+            className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
+          >
+            <ChevronRight className="rounded-lg hover:bg-gray-100"></ChevronRight>
+          </button>
         )}
       </div>
       <div className="flex items-center gap-4">
@@ -89,14 +75,10 @@ export default function Pagination({ recipeCount }: PaginationProps) {
           Showing
         </label>
         <select
-          onChange={(e) => {
-            router.replace(
-              pathname + `?page=${params.page}&perPage=${e.target.value}`,
-            );
-          }}
+          onChange={onSelectChange}
           className="rounded-lg  bg-gray-100 px-2 text-xl"
           name="per-page"
-          defaultValue={10}
+          defaultValue={params.perPage ?? "10"}
           id="per-page"
         >
           <option value="10">10</option>

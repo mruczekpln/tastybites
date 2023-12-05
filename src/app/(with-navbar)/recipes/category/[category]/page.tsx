@@ -1,4 +1,8 @@
-import { and, eq, like, sql, type SQL } from "drizzle-orm";
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
+import { and, count, eq, inArray, like, sql, type SQL } from "drizzle-orm";
 import CategoryList from "~/components/recipes/category/category-list";
 import RecipeList from "~/components/recipes/category/recipe-list";
 import SearchBar from "~/components/recipes/category/search-bar";
@@ -10,6 +14,39 @@ import { db } from "~/server/db";
 import { recipeLikes, recipeReviews, recipes, users } from "~/server/db/schema";
 import { type RecipeCategory, type RecipeListItem } from "~/types";
 
+type CookingTimeRange = {
+  min: number;
+  max: number;
+};
+
+function calculateCookingTimeRange(selectedCheckboxes: string[]) {
+  if (selectedCheckboxes.length > 0) {
+    const ranges: CookingTimeRange[] = selectedCheckboxes.map((checkbox) => {
+      const [min, max] = checkbox.split("-").map(Number);
+      return { min, max } as CookingTimeRange;
+    });
+
+    ranges.sort((a, b) => a.min - b.min);
+
+    const combinedRanges: CookingTimeRange[] = [ranges[0]!];
+
+    for (let i = 1; i < ranges.length; i++) {
+      const currentRange = ranges[i]!;
+      const lastCombinedRange = combinedRanges[combinedRanges.length - 1]!;
+
+      if (currentRange.min <= lastCombinedRange.max)
+        lastCombinedRange.max = Math.max(
+          lastCombinedRange.max,
+          currentRange.max,
+        );
+      else combinedRanges.push(currentRange);
+    }
+
+    return combinedRanges.map((range) => `${range.min}-${range.max}`);
+    // .join(",");
+  } else return [];
+}
+
 const getRecipes =
   // cache(
   async (
@@ -17,16 +54,43 @@ const getRecipes =
     userId?: string,
     searchParams?: CategorySearchParams,
   ) => {
-    const where: SQL[] = [];
+    const recipeListWhere: SQL[] = [];
 
-    if (category !== "all") where.push(eq(recipes.category, category));
-    if (searchParams!.searchQuery)
-      where.push(like(recipes.name, `%${searchParams?.searchQuery}%`));
-    if (searchParams?.page) "";
+    const page = Number(searchParams?.page) ?? 1;
+    const perPage = Number(searchParams?.perPage) ?? 10;
 
-    console.log(searchParams);
+    const searchQuery: string = searchParams?.searchQuery ?? "";
+    const difficultyLevelsArr: string[] =
+      searchParams?.difficultyLevels?.split(",") ?? [];
+    const ratingsArr: string[] = searchParams?.ratings?.split(",") ?? [];
+    const cookingTimeRanges: string[] = calculateCookingTimeRange(
+      searchParams?.cookingTimeRanges?.split(",") ?? [],
+    );
 
-    const recipeList = await db
+    if (category !== "all")
+      recipeListWhere.push(eq(recipes.category, category));
+    if (searchQuery.length > 0)
+      recipeListWhere.push(like(recipes.name, `%${searchQuery}%`));
+    if (difficultyLevelsArr.length > 0)
+      recipeListWhere.push(
+        inArray(recipes.difficultyLevel, difficultyLevelsArr),
+      );
+    if (cookingTimeRanges.length > 0) {
+      recipeListWhere.push(
+        sql.raw(
+          `(${cookingTimeRanges
+            .map(
+              (range) =>
+                `(tastybites_recipe.cooking_time BETWEEN  ${
+                  range.split("-")[0]
+                } AND ${range.split("-")[1]})`,
+            )
+            .join(" OR ")})`,
+        ),
+      );
+    }
+
+    const recipeListBaseQuery = db
       .select({
         id: recipes.id,
         name: recipes.name,
@@ -34,9 +98,9 @@ const getRecipes =
         difficultyLevel: recipes.difficultyLevel,
         cookingTime: recipes.cookingTime,
         username: users.name,
-        likeCount: sql<number>`COALESCE(COUNT(${recipeLikes.id}), 0)`,
-        reviewCount: sql<number>`COALESCE(COUNT(${recipeReviews.id}), 0)`,
-        averageRating: sql<number>`AVG(${recipeReviews.rating})`,
+        likeCount: count(recipeLikes.id),
+        reviewCount: count(recipeReviews.id),
+        averageRating: sql<number>`CASE WHEN AVG(${recipeReviews.rating}) THEN AVG(${recipeReviews.rating}) ELSE 0 END`,
         ...(userId
           ? {
               isUserLiking: sql.raw(
@@ -46,39 +110,40 @@ const getRecipes =
           : {}),
       })
       .from(recipes)
+      .where(and(...recipeListWhere))
       .leftJoin(users, eq(recipes.userId, users.id))
       .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
       .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
       .groupBy(recipes.id, users.name)
-      .where(and(...where))
-      // .limit(10);
-      .limit(Number(searchParams?.perPage) || 10)
-      .offset(
-        Number(searchParams?.perPage ?? 10) * Number(searchParams?.page) > 1
-          ? Number(searchParams?.page)
-          : 0,
+      .$dynamic();
+
+    if (ratingsArr.length > 0)
+      recipeListBaseQuery.having(
+        inArray(sql`ROUND(AVG(${recipeReviews.rating}), 0)`, ratingsArr),
       );
-    // );
 
-    const [totalRecipeCount] = await db
-      .select({ totalCount: sql.raw("COUNT(*)") })
-      .from(recipes)
-      .where(and(...where));
+    recipeListBaseQuery
+      .limit(Number(searchParams?.perPage) + 1 || 11)
+      .offset((page - 1) * perPage);
 
-    return {
-      recipeList: recipeList as RecipeListItem[],
-      totalRecipeCount: totalRecipeCount?.totalCount as number,
-    };
+    const recipeList = await recipeListBaseQuery;
+    console.log(recipeList);
+
+    return recipeList as RecipeListItem[];
   };
 //   undefined,
 //   { revalidate: 5 },
 // );
 
 type CategorySearchParams = {
-  searchQuery: string;
-  page: string;
-  perPage: string;
+  searchQuery?: string;
+  page?: string;
+  perPage?: string;
+  cookingTimeRanges?: string;
+  difficultyLevels?: string;
+  ratings?: string;
 };
+
 export default async function Category({
   params,
   searchParams,
@@ -87,7 +152,7 @@ export default async function Category({
   searchParams: CategorySearchParams;
 }) {
   const session = await getServerAuthSession();
-  const { recipeList, totalRecipeCount } = await getRecipes(
+  const recipeList = await getRecipes(
     params.category,
     session?.user.id,
     searchParams,
@@ -115,11 +180,11 @@ export default async function Category({
         <CategoryList></CategoryList>
         <SortBy></SortBy>
       </div>
-      {/* <RecipeList recipeList={recipes}></RecipeList> */}
       <RecipeList
         showCategory={params.category === "all"}
-        totalRecipeCount={totalRecipeCount}
         recipeList={recipeList}
+        page={Number(searchParams.page ?? 1)}
+        perPage={Number(searchParams.perPage ?? 10)}
       ></RecipeList>
     </div>
   );
