@@ -1,34 +1,46 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Input from "~/components/ui/input";
+import getNewParams from "~/lib/get-new-params";
 
 type SearchBarProps = {
   category: string;
 };
 export default function SearchBar({ category }: SearchBarProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchParamsObject = Object.fromEntries(searchParams.entries());
 
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState<string>(
+    searchParamsObject.searchQuery ?? "",
+  );
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (inputValue.trim() !== "")
-        router.replace(
-          `/recipes/category/${category}?searchQuery=${inputValue}`,
-        );
+      router.replace(
+        getNewParams(pathname, {
+          ...Object.fromEntries(searchParams.entries()),
+          searchQuery: inputValue,
+        }),
+        { scroll: false },
+      );
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [inputValue, category, router]);
+  }, [inputValue, pathname, router, searchParams]);
 
   return (
     <div className="max mb-8 mt-4 flex h-16 w-full items-center rounded-md border-2 border-black bg-yellow-100 px-8 shadow-button">
       <Search size={32}></Search>
       <Input
         // className="flex h-16 w-full items-center bg-yellow-100 pl-8 text-xl duration-300 placeholder:justify-self-center focus:bg-yellow-500 focus:placeholder:font-normal focus:placeholder:text-black"
+        // value={searchParamsObject.searchQusdbasdbery ?? ""}
+        // value={inputValue}
+        defaultValue={inputValue}
         border={false}
         onChange={(e) => {
           setInputValue(e.target.value);
