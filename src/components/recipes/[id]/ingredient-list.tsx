@@ -1,7 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { db } from "~/server/db";
 
-const getIngredients = unstable_cache(
+const getRecipeIngredients = unstable_cache(
   async (id: string) => {
     const ingredients = await db.query.recipeIngredients.findMany({
       where: (recipeIngredients, { eq }) => eq(recipeIngredients.recipeId, id),
@@ -19,7 +19,7 @@ type RecipeIngredientListProps = {
 export default async function RecipeIngredientList({
   recipeId,
 }: RecipeIngredientListProps) {
-  const ingredientsData = await getIngredients(recipeId);
+  const ingredientsData = await getRecipeIngredients(recipeId);
 
   return (
     <>
