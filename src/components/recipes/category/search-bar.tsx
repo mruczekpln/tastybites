@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Input from "~/components/ui/input";
-import getNewParams from "~/lib/get-new-params";
+import getNewParams from "~/lib/utils/get-new-params";
 
 type SearchBarProps = {
   category: string;

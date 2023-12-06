@@ -1,4 +1,3 @@
-import { eq, sql } from "drizzle-orm";
 import { unstable_cache as cache } from "next/cache";
 import RecipeStats from "~/components/recipes/[id]/RecipeStats";
 import RecipeIngredientList from "~/components/recipes/[id]/ingredient-list";
@@ -10,53 +9,7 @@ import RecipeSummary from "~/components/recipes/[id]/summary";
 import RouteDisplay from "~/components/recipes/path-display";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { recipeLikes, recipes, users } from "~/server/db/schema";
-
-const getRecipe = cache(
-  async (recipeId: string, userId?: string) => {
-    const [recipe] = await db
-      .select({
-        id: recipes.id,
-        instructions: recipes.instructions,
-        // userId: recipes.userId,
-        name: recipes.name,
-        description: recipes.description,
-        category: recipes.category,
-        cookingTime: recipes.cookingTime,
-        difficultyLevel: recipes.difficultyLevel,
-        createdAt: recipes.createdAt,
-        username: users.name,
-        like_count: sql`COUNT(${recipeLikes.id})`,
-        ...(userId
-          ? {
-              isUserLiking: sql.raw(
-                `MAX(CASE WHEN tastybites_recipe_like.user_id = '${userId}' THEN 1 ELSE 0 END)`,
-              ),
-            }
-          : {}),
-      })
-      .from(recipes)
-      .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-      .leftJoin(users, eq(recipes.userId, users.id))
-      .where(eq(recipes.id, recipeId))
-      .groupBy(
-        recipes.id,
-        recipes.instructions,
-        recipes.userId,
-        recipes.name,
-        recipes.description,
-        recipes.category,
-        recipes.cookingTime,
-        recipes.difficultyLevel,
-        recipes.createdAt,
-      )
-      .limit(1);
-
-    return recipe;
-  },
-  undefined,
-  { revalidate: 5 },
-);
+import { api } from "~/trpc/server";
 
 const getReviews = cache(
   async (recipeId: string) => {
@@ -82,7 +35,10 @@ const getReviews = cache(
 
 export default async function Recipe({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
-  const recipeData = await getRecipe(params.id, session?.user.id);
+  const recipeData = await api.recipe.getById.query({
+    recipeId: params.id,
+    userId: session?.user.id,
+  });
   const reviewsData = await getReviews(params.id);
 
   const averageRating =

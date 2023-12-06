@@ -1,19 +1,20 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronFirst, ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ChangeEvent } from "react";
-import getNewParams from "~/lib/get-new-params";
+import getNewParams from "~/lib/utils/get-new-params";
 
 type PaginationProps = {
   totalRecipes: number;
 };
+
 export default function Pagination({ totalRecipes }: PaginationProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  const params = {
+  const searchParams = useSearchParams();
+  const searchParamsObject = {
     page: 1,
     perPage: 10,
     ...Object.fromEntries(searchParams.entries()),
@@ -22,48 +23,46 @@ export default function Pagination({ totalRecipes }: PaginationProps) {
   function onSelectChange(e: ChangeEvent<HTMLSelectElement>) {
     router.replace(
       getNewParams(pathname, {
-        ...params,
+        ...searchParamsObject,
         page: "1",
         perPage: e.target.value.toString(),
       }),
     );
   }
 
-  // const lastPage = Math.ceil(recipeCount / Number(params.perPage));
+  function switchPage(page: number) {
+    router.replace(
+      getNewParams(pathname, {
+        ...searchParamsObject,
+        perPage: searchParamsObject.perPage.toString(),
+        page: page.toString(),
+      }),
+    );
+  }
 
   return (
     <div className="flex w-full justify-between">
       <div className="flex h-16 items-center">
-        {params.page > 1 && (
+        {searchParamsObject.page > 2 && (
           <button
-            onClick={() => {
-              router.replace(
-                getNewParams(pathname, {
-                  ...params,
-                  perPage: params.perPage.toString(),
-                  page: (Number(params.page) - 1).toString(),
-                }),
-              );
-            }}
+            onClick={() => switchPage(1)}
+            className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
+          >
+            <ChevronFirst className="rounded-lg hover:bg-gray-100"></ChevronFirst>
+          </button>
+        )}
+        {searchParamsObject.page > 1 && (
+          <button
+            onClick={() => switchPage(Number(searchParamsObject.page) - 1)}
             className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
           >
             <ChevronLeft className="rounded-lg hover:bg-gray-100"></ChevronLeft>
           </button>
         )}
-        <p className="mx-8 text-3xl font-bold">
-          {searchParams.get("page") ?? 1}
-        </p>
+        <p className="mx-8 text-3xl font-bold">{searchParamsObject.page}</p>
         {totalRecipes === 11 && (
           <button
-            onClick={() => {
-              router.replace(
-                getNewParams(pathname, {
-                  ...params,
-                  perPage: params.perPage.toString(),
-                  page: (Number(params.page) + 1).toString(),
-                }),
-              );
-            }}
+            onClick={() => switchPage(Number(searchParamsObject.page) + 1)}
             className="flex h-full w-16 items-center justify-center hover:bg-gray-100"
           >
             <ChevronRight className="rounded-lg hover:bg-gray-100"></ChevronRight>
@@ -75,11 +74,11 @@ export default function Pagination({ totalRecipes }: PaginationProps) {
           Showing
         </label>
         <select
-          onChange={onSelectChange}
           className="rounded-lg  bg-gray-100 px-2 text-xl"
           name="per-page"
-          defaultValue={params.perPage ?? "10"}
           id="per-page"
+          defaultValue={searchParamsObject.perPage ?? "10"}
+          onChange={onSelectChange}
         >
           <option value="10">10</option>
           <option value="20">20</option>

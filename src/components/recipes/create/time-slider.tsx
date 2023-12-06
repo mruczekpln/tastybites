@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { type Path, type UseFormRegister } from "react-hook-form";
-import minutesToHours from "~/lib/minutes-to-hours";
+import minutesToHours from "~/lib/utils/minutes-to-hours";
 import { type CreateRecipeFormSchema } from "./form";
 
 type CookingTimeSliderProps = {

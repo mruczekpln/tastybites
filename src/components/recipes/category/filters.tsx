@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import getNewParams from "~/lib/get-new-params";
+import getNewParams from "~/lib/utils/get-new-params";
 import FilterCheckbox from "./filters-checkbox";
 
 type SearchFilters = {
@@ -14,27 +14,19 @@ type SearchFilters = {
 export default function Filters() {
   const router = useRouter();
   const pathname = usePathname();
+
   const searchParams = useSearchParams();
-
-  const cookingTimeRanges =
-    searchParams.get("cookingTimeRanges")?.split(",") ?? [];
-  const difficultyLevels =
-    searchParams.get("difficultyLevels")?.split(",") ?? [];
-  const ratings = searchParams.get("ratings")?.split(",") ?? [];
-
   const searchParamsObject = {
     ...Object.fromEntries(searchParams.entries()),
-    cookingTimeRanges,
-    difficultyLevels,
-    ratings,
+    cookingTimeRanges: searchParams.get("cookingTimeRanges")?.split(",") ?? [],
+    difficultyLevels: searchParams.get("difficultyLevels")?.split(",") ?? [],
+    ratings: searchParams.get("ratings")?.split(",") ?? [],
   };
 
   function handleChecbkoxChange(
     filterGroupKey: keyof typeof searchParamsObject,
     checkboxValue: string,
   ) {
-    console.log(searchParamsObject);
-
     const newSearchParamsObject = {
       ...searchParamsObject,
       [filterGroupKey]: searchParamsObject[filterGroupKey].includes(
@@ -71,42 +63,42 @@ export default function Filters() {
         <FilterCheckbox
           name="<10"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "5-10")}
-          checked={cookingTimeRanges.includes("5-10")}
+          checked={searchParamsObject.cookingTimeRanges.includes("5-10")}
         >
           less than 10 mins
         </FilterCheckbox>
         <FilterCheckbox
           name="10-20"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "10-20")}
-          checked={cookingTimeRanges.includes("10-20")}
+          checked={searchParamsObject.cookingTimeRanges.includes("10-20")}
         >
           10 to 20 mins
         </FilterCheckbox>
         <FilterCheckbox
           name="20-40"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "20-40")}
-          checked={cookingTimeRanges.includes("20-40")}
+          checked={searchParamsObject.cookingTimeRanges.includes("20-40")}
         >
           20 to 40 mins
         </FilterCheckbox>
         <FilterCheckbox
           name="40-60"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "40-60")}
-          checked={cookingTimeRanges.includes("40-60")}
+          checked={searchParamsObject.cookingTimeRanges.includes("40-60")}
         >
           40 mins to a hour
         </FilterCheckbox>
         <FilterCheckbox
           name="60-120"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "60-120")}
-          checked={cookingTimeRanges.includes("60-120")}
+          checked={searchParamsObject.cookingTimeRanges.includes("60-120")}
         >
           1 to 2 hours
         </FilterCheckbox>
         <FilterCheckbox
           name=">120"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "120-130")}
-          checked={cookingTimeRanges.includes("120-130")}
+          checked={searchParamsObject.cookingTimeRanges.includes("120-130")}
         >
           more than 2 hours
         </FilterCheckbox>
@@ -126,7 +118,7 @@ export default function Filters() {
           name="easy"
           className="flex"
           onChange={() => handleChecbkoxChange("difficultyLevels", "easy")}
-          checked={difficultyLevels.includes("easy")}
+          checked={searchParamsObject.difficultyLevels.includes("easy")}
         >
           Easy
         </FilterCheckbox>
@@ -136,7 +128,7 @@ export default function Filters() {
           onChange={() =>
             handleChecbkoxChange("difficultyLevels", "intermediate")
           }
-          checked={difficultyLevels.includes("intermediate")}
+          checked={searchParamsObject.difficultyLevels.includes("intermediate")}
         >
           Intermediate
         </FilterCheckbox>
@@ -144,7 +136,7 @@ export default function Filters() {
           name="advanced"
           className="flex"
           onChange={() => handleChecbkoxChange("difficultyLevels", "advanced")}
-          checked={difficultyLevels.includes("advanced")}
+          checked={searchParamsObject.difficultyLevels.includes("advanced")}
         >
           Advanced
         </FilterCheckbox>
@@ -164,7 +156,7 @@ export default function Filters() {
           name="1-star"
           className="flex"
           onChange={() => handleChecbkoxChange("ratings", "1")}
-          checked={ratings.includes("1")}
+          checked={searchParamsObject.ratings.includes("1")}
         >
           1 star
         </FilterCheckbox>
@@ -172,7 +164,7 @@ export default function Filters() {
           name="2-star"
           className="flex"
           onChange={() => handleChecbkoxChange("ratings", "2")}
-          checked={ratings.includes("2")}
+          checked={searchParamsObject.ratings.includes("2")}
         >
           2 stars
         </FilterCheckbox>
@@ -180,7 +172,7 @@ export default function Filters() {
           name="3-star"
           className="flex"
           onChange={() => handleChecbkoxChange("ratings", "3")}
-          checked={ratings.includes("3")}
+          checked={searchParamsObject.ratings.includes("3")}
         >
           3 stars
         </FilterCheckbox>
@@ -188,7 +180,7 @@ export default function Filters() {
           name="4-star"
           className="flex"
           onChange={() => handleChecbkoxChange("ratings", "4")}
-          checked={ratings.includes("4")}
+          checked={searchParamsObject.ratings.includes("4")}
         >
           4 stars
         </FilterCheckbox>
@@ -196,7 +188,7 @@ export default function Filters() {
           name="5-star"
           className="flex"
           onChange={() => handleChecbkoxChange("ratings", "5")}
-          checked={ratings.includes("5")}
+          checked={searchParamsObject.ratings.includes("5")}
         >
           5 stars
         </FilterCheckbox>
