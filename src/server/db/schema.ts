@@ -14,23 +14,6 @@ import {
 import { type AdapterAccount } from "next-auth/adapters";
 export const mysqlTable = mysqlTableCreator((name) => `tastybites_${name}`);
 
-export const users = mysqlTable("user", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  hashedPassword: varchar("hashed_password", { length: 60 }),
-  emailVerified: boolean("emailVerified").default(false),
-  image: varchar("image", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-  recipes: many(recipes),
-  recipeLikes: many(recipeLikes),
-  recipeReviews: many(recipeReviews),
-}));
-
 export const accounts = mysqlTable(
   "account",
   {
@@ -68,22 +51,37 @@ export const verificationTokens = mysqlTable(
     compoundKey: primaryKey(vt.identifier, vt.token),
   }),
 );
+export const users = mysqlTable("user", {
+  id: varchar("id", { length: 36 }).notNull().primaryKey(),
+  name: varchar("name", { length: 255 }),
+  email: varchar("email", { length: 255 }).notNull(),
+  hashedPassword: varchar("hashed_password", { length: 60 }),
+  emailVerified: boolean("emailVerified").default(false),
+  image: varchar("image", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  recipes: many(recipes),
+  recipeLikes: many(recipeLikes),
+  recipeReviews: many(recipeReviews),
+}));
 
 export const recipes = mysqlTable("recipe", {
   id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  userId: varchar("user_id", { length: 36 }).notNull(),
+  creatorId: varchar("creator_id", { length: 36 }).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
   description: text("description").notNull(),
   instructions: text("instructions").notNull(),
   category: varchar("category", { length: 10 }).notNull(),
   cookingTime: smallint("cooking_time").notNull(),
   difficultyLevel: varchar("difficulty_level", { length: 12 }).notNull(),
-  // likes: int("likes").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const recipesRelations = relations(recipes, ({ one, many }) => ({
-  users: one(users, { fields: [recipes.userId], references: [users.id] }),
+  users: one(users, { fields: [recipes.creatorId], references: [users.id] }),
   recipeImages: many(recipeImages),
   recipeIngredients: many(recipeIngredients),
   recipeLikes: many(recipeLikes),
@@ -106,12 +104,13 @@ export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
 export const recipeLikes = mysqlTable("recipe_like", {
   id: varchar("id", { length: 36 }).notNull().primaryKey(),
   recipeId: varchar("recipe_id", { length: 36 }).notNull(),
-  userId: varchar("user_id", { length: 36 }).notNull(),
+  creatorId: varchar("creator_id", { length: 36 }).notNull(),
+  likedById: varchar("liked_by_id", { length: 36 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
-  user: one(users, { fields: [recipeLikes.userId], references: [users.id] }),
+  user: one(users, { fields: [recipeLikes.likedById], references: [users.id] }),
   recipe: one(recipes, {
     fields: [recipeLikes.recipeId],
     references: [recipes.id],

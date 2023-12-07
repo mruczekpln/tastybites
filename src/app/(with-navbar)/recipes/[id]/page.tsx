@@ -69,6 +69,7 @@ export default async function Recipe({ params }: { params: { id: string } }) {
             likeCount={Number(recipeData?.like_count)}
             isUserLiking={Number(recipeData?.isUserLiking) === 1 ? true : false}
             recipeId={recipeData!.id}
+            ownerId={recipeData!.ownerId}
           ></RecipeStats>
         </div>
 

@@ -4,10 +4,16 @@ import Link from "next/link";
 import { type RecipeListItem } from "~/types";
 
 type RecipeCardProps = {
+  hideLikes?: boolean;
+  hideOwner?: boolean;
+  higher?: boolean;
   showCategory: boolean;
   data: RecipeListItem;
 };
 export default function RecipeCard({
+  hideLikes = false,
+  hideOwner = false,
+  higher = false,
   showCategory,
   data: {
     id,
@@ -26,7 +32,9 @@ export default function RecipeCard({
     <Link
       href={`/recipes/${id}`}
       prefetch={false}
-      className="flex h-48 cursor-pointer overflow-hidden rounded-lg border-2 border-black bg-white duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:shadow-button"
+      className={`flex ${
+        higher ? "h-64" : "h-48"
+      } cursor-pointer overflow-hidden rounded-lg border-2 border-black bg-white duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:shadow-button`}
     >
       <div className="flex h-full w-1/2 flex-col justify-between border-r-2 border-black p-4">
         <div className="flex items-start justify-between">
@@ -51,19 +59,21 @@ export default function RecipeCard({
               <p className="mt-1 text-sm">0 reviews</p>
             )}
             {showCategory && (
-              <p className="mt-2 w-min rounded-lg bg-yellow-500 p-1 px-2 text-sm font-bold text-yellow-900">
+              <p className="mt-2 w-min whitespace-nowrap rounded-lg bg-yellow-500 p-1 px-2 text-sm font-bold text-yellow-900">
                 {category.toUpperCase()}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <p>{likeCount}</p>
-            <Heart
-              absoluteStrokeWidth
-              fill={Number(isUserLiking) === 1 ? "black" : "transparent"}
-              size={32}
-            ></Heart>
-          </div>
+          {!hideLikes && (
+            <div className="flex items-center gap-2">
+              <p>{likeCount}</p>
+              <Heart
+                absoluteStrokeWidth
+                fill={Number(isUserLiking) === 1 ? "black" : "transparent"}
+                size={32}
+              ></Heart>
+            </div>
+          )}
         </div>
         <div className="flex items-end justify-between">
           <div className="flex items-center">
@@ -75,10 +85,12 @@ export default function RecipeCard({
                 difficultyLevel.slice(1)}
             </p>
           </div>
-          <p className="cursor-pointer whitespace-nowrap">
-            <b className="pr-2">recipe by:</b>{" "}
-            <span className="hover:underline">{username}</span>
-          </p>
+          {!hideOwner && (
+            <p className="cursor-pointer whitespace-nowrap">
+              <b className="pr-2">recipe by:</b>{" "}
+              <span className="hover:underline">{username}</span>
+            </p>
+          )}
         </div>
       </div>
       <Image

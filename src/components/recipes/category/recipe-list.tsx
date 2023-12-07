@@ -1,14 +1,13 @@
-import { type CategorySearchParams } from "~/app/(with-navbar)/recipes/category/[category]/page";
 import shortenCookingTimeRanges from "~/lib/utils/shorten-cooking-time-ranges";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import { type RecipeCategory } from "~/types";
+import { type RecipeCategory, type RecipeListSearchParams } from "~/types";
 import Pagination from "../pagination";
 import RecipeCard from "../recipe-card";
 import Filters from "./filters";
 
 type RecipeListProps = {
-  searchParams: CategorySearchParams;
+  searchParams: RecipeListSearchParams;
   category: RecipeCategory;
 };
 export default async function RecipeList({

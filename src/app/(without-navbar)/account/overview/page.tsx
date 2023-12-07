@@ -1,7 +1,12 @@
-import { Bookmark, Heart, Save } from "lucide-react";
+import { count, countDistinct, eq } from "drizzle-orm";
+import { Heart, LogOut } from "lucide-react";
+import Link from "next/link";
 import { type ComponentProps } from "react";
 import cn from "~/components/cn";
-import RecipeCard from "~/components/recipes/recipe-card";
+import Button from "~/components/ui/button";
+import { getServerAuthSession } from "~/server/auth";
+import { db } from "~/server/db";
+import { recipeLikes, recipes, users } from "~/server/db/schema";
 
 type OverviewCardProps = ComponentProps<"div">;
 function OverviewCard({ className, children }: OverviewCardProps) {
@@ -17,52 +22,85 @@ function OverviewCard({ className, children }: OverviewCardProps) {
   );
 }
 
-export default function AccountOverview() {
+async function getUserOverwiev(userId: string) {
+  const [overview] = await db
+    .select({
+      createdAt: users.createdAt,
+      likedRecipes: countDistinct(recipeLikes.recipeId),
+      postedRecipes: countDistinct(recipes.id),
+    })
+    .from(users)
+    .leftJoin(recipeLikes, eq(users.id, recipeLikes.likedById))
+    .leftJoin(recipes, eq(recipeLikes.recipeId, recipes.id))
+    .where(eq(users.id, userId))
+    // .where(and(eq(users.id, userId), eq(recipeLikes.likedById, userId)));
+    .limit(1);
+
+  // console.log(overview.toSQL());
+
+  const [totalRecipeData] = await db
+    .select({
+      totalRecipeLikes: count(recipeLikes.recipeId),
+    })
+    .from(recipeLikes)
+    .where(eq(recipeLikes.creatorId, userId))
+    .limit(1);
+
+  return {
+    ...overview,
+    totalRecipeLikes: totalRecipeData?.totalRecipeLikes,
+  };
+}
+
+export default async function AccountOverview() {
+  const session = await getServerAuthSession();
+  const overview = await getUserOverwiev(session!.user.id);
+
   return (
     <div className="flex h-auto w-full max-w-screen-2xl flex-col gap-8">
-      <h1 className="font-title text-5xl">Hello, cytryneq95</h1>
+      <div className="flex flex-col items-center gap-12">
+        <div className="h-48 w-48 rounded-full border-2 border-black"></div>
+        <h1 className="font-title text-5xl">Hello, {session?.user.name}!</h1>
+      </div>
       <div className="flex w-full gap-8 [&>*]:w-full">
         <OverviewCard className="flex flex-wrap items-center justify-between">
           <h2 className="text-3xl font-bold">With us for</h2>
-          <p className="w-1/2 text-right text-2xl">32 days</p>
+          <p className="w-1/2 text-right text-2xl">X days</p>
           <p>
-            since: <i>17th October</i>
+            since: <i>{overview.createdAt!.toDateString()}</i>
           </p>
         </OverviewCard>
         <OverviewCard className="flex flex-wrap items-center justify-between">
-          <h2 className="text-3xl font-bold">Saved Recipes</h2>
-          <p className="w-1/3 text-right text-2xl">16</p>
-          <u>
+          <h2 className="text-3xl font-bold">Liked Recipes</h2>
+          <p className="w-1/3 text-right text-2xl">{overview.likedRecipes}</p>
+          <Link href="/account/favorites" className="underline">
             go to favorites
-            {/* <ChevronRight className="ml-2 inline" size={20}></ChevronRight> */}
-          </u>
+          </Link>
         </OverviewCard>
         <OverviewCard className="flex flex-wrap items-center justify-between">
           <h2 className="text-3xl font-bold">Posted recipes</h2>
-          <p className="w-1/3 text-right text-2xl">3</p>
-          <u>
+          <p className="w-1/3 text-right text-2xl">{overview.postedRecipes}</p>
+          <Link href="/account/recipes" className="underline">
             go to your recipes
-            {/* <ChevronRight className="ml-2 inline" size={20}></ChevronRight> */}
-          </u>
+          </Link>
         </OverviewCard>
       </div>
-      {/* <OverviewCard className="flex flex-col gap-4 bg-yellow-50"> */}
       <hr />
-      {/* <div className="flex justify-between"> */}
-      <h2 className="text-3xl">Your recipes earned:</h2>
-      <div className="flex items-center">
-        <Heart size={32}></Heart>
-        <p className="mx-4 text-2xl">16</p>
-        <Bookmark size={32}></Bookmark>
-        <p className="ml-4 text-2xl">3</p>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl">Your recipes earned in total:</h2>
+        <div className="flex items-center gap-4">
+          <Heart size={48}></Heart>
+          <p className="text-4xl">{overview.totalRecipeLikes} likes</p>
+        </div>
       </div>
-      {/* </div> */}
       <hr />
-      <h2 className="text-4xl">Recently viewed recipes</h2>
-      <RecipeCard></RecipeCard>
-      <RecipeCard></RecipeCard>
-      <RecipeCard></RecipeCard>
-      {/* </OverviewCard> */}
+      <Button
+        className="flex w-min items-center gap-4 bg-red-600 px-8 py-4 text-3xl font-bold text-white hover:bg-red-900"
+        variant="ghost"
+      >
+        <LogOut className="inline" size={32}></LogOut>
+        Log out
+      </Button>
     </div>
   );
 }

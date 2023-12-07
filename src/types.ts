@@ -8,10 +8,10 @@ export type RecipeListItem = {
   difficultyLevel: string;
   category: string;
   likeCount: number;
-  username: string | null;
+  username?: string | null;
   reviewCount: number;
   averageRating: number;
-  isUserLiking: 0 | 1;
+  isUserLiking?: 0 | 1;
 };
 
 export type RecipeCategory =
@@ -45,3 +45,18 @@ type ReviewUser = {
 export interface Review
   extends InferSelectModel<typeof recipeReviews>,
     ReviewUser {}
+
+export type PaginationSearchParams = {
+  page?: number;
+  perPage?: number;
+};
+
+export type SortBy = "likes" | "rating" | "latest" | "name";
+
+export type RecipeListSearchParams = {
+  searchQuery?: string;
+  cookingTimeRanges?: string;
+  difficultyLevels?: string;
+  ratings?: string;
+  sortBy?: SortBy;
+} & PaginationSearchParams;

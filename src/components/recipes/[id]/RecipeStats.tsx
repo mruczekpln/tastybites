@@ -8,12 +8,14 @@ import { api } from "~/trpc/react";
 type RecipeStatsProps = {
   isLoggedIn: boolean;
   recipeId: string;
+  ownerId: string;
   isUserLiking: boolean;
   likeCount: number;
 };
 export default function RecipeStats({
   isLoggedIn,
   recipeId,
+  ownerId,
   isUserLiking,
   likeCount,
 }: RecipeStatsProps) {
@@ -31,6 +33,7 @@ export default function RecipeStats({
       {
         isLiked: liked,
         recipeId,
+        creatorId: ownerId,
       },
       {
         onSuccess: () => {

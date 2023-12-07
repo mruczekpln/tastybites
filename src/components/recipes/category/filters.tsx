@@ -39,8 +39,6 @@ export default function Filters() {
       page: "1",
     } as SearchFilters;
 
-    console.log(newSearchParamsObject);
-
     router.replace(getNewParams(pathname, newSearchParamsObject), {
       scroll: false,
     });

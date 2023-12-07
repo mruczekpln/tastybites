@@ -6,7 +6,8 @@ export default {
   schema: "./src/server/db/schema.ts",
   driver: "mysql2",
   dbCredentials: {
-    connectionString: env.DATABASE_URL,
+    // connectionString: env.DATABASE_URL,
+    uri: env.DATABASE_URL,
   },
   tablesFilter: ["tastybites_*"],
 } satisfies Config;
