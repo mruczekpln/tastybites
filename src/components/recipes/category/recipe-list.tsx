@@ -31,7 +31,11 @@ export default async function RecipeList({
         ? shortenCookingTimeRanges(searchParams.cookingTimeRanges.split(","))
         : [],
       difficultyLevelsArr: searchParams.difficultyLevels
-        ? searchParams.difficultyLevels.split(",")
+        ? (searchParams.difficultyLevels.split(",") as (
+            | "easy"
+            | "intermediate"
+            | "advanced"
+          )[])
         : [],
       ratingsArr: searchParams.ratings ? searchParams.ratings.split(",") : [],
     },

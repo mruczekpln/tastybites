@@ -1,8 +1,5 @@
-import { type InferSelectModel } from "drizzle-orm";
-import { type recipeReviews } from "./server/db/schema";
-
 export type RecipeListItem = {
-  id: string;
+  id: number;
   name: string;
   cookingTime: number;
   difficultyLevel: string;
@@ -12,6 +9,17 @@ export type RecipeListItem = {
   reviewCount: number;
   averageRating: number;
   isUserLiking?: 0 | 1;
+};
+
+export type ReviewListItem = {
+  id: number;
+  rating: number;
+  content: string;
+  createdAt: Date;
+
+  userId: string | null;
+  userName: string | null;
+  userAvatar: string | null;
 };
 
 export type RecipeCategory =
@@ -34,17 +42,6 @@ export type RecipeCategoryData = Record<
     imageSize?: number;
   }
 >;
-
-type ReviewUser = {
-  users: {
-    image: string | null;
-    name: string | null;
-  };
-};
-
-export interface Review
-  extends InferSelectModel<typeof recipeReviews>,
-    ReviewUser {}
 
 export type PaginationSearchParams = {
   page?: number;

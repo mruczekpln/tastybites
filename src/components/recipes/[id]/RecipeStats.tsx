@@ -7,7 +7,7 @@ import { api } from "~/trpc/react";
 
 type RecipeStatsProps = {
   isLoggedIn: boolean;
-  recipeId: string;
+  recipeId: number;
   ownerId: string;
   isUserLiking: boolean;
   likeCount: number;

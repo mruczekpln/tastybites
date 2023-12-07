@@ -1,6 +1,6 @@
-import { randomUUID } from "crypto";
 import { and, count, eq, inArray, like, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "~/server/db";
 import { withPagination, withSorting } from "~/server/db/dynamics";
 import {
   recipeImages,
@@ -13,8 +13,6 @@ import {
 import { type RecipeListItem } from "~/types";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
-// edit recipe
-// delete recipe
 export const recipeRouter = createTRPCRouter({
   getPage: publicProcedure
     .input(
@@ -27,7 +25,13 @@ export const recipeRouter = createTRPCRouter({
           sortBy: z.string(),
           searchQuery: z.string().optional(),
           cookingTimeRangeArr: z.array(z.string()),
-          difficultyLevelsArr: z.array(z.string()),
+          difficultyLevelsArr: z.array(
+            z.union([
+              z.literal("easy"),
+              z.literal("intermediate"),
+              z.literal("advanced"),
+            ]),
+          ),
           ratingsArr: z.array(z.string()),
         }),
       }),
@@ -119,7 +123,7 @@ export const recipeRouter = createTRPCRouter({
     ),
 
   getById: publicProcedure
-    .input(z.object({ recipeId: z.string(), userId: z.string().optional() }))
+    .input(z.object({ recipeId: z.number(), userId: z.string().optional() }))
     .query(async ({ input: { recipeId, userId }, ctx }) => {
       const [recipe] = await ctx.db
         .select({
@@ -177,16 +181,17 @@ export const recipeRouter = createTRPCRouter({
         instructions: z.string(),
         category: z.string(),
         cookingTime: z.number(),
-        difficultyLevel: z.string(),
+        difficultyLevel: z.union([
+          z.literal("easy"),
+          z.literal("intermediate"),
+          z.literal("advanced"),
+        ]),
         images: z.array(z.string()),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const recipeId = randomUUID();
-
-      await ctx.db.transaction(async (tx) => {
-        await tx.insert(recipes).values({
-          id: recipeId as string,
+      const insertId = await ctx.db.transaction(async (tx) => {
+        const { insertId } = await tx.insert(recipes).values({
           creatorId: ctx.session.user.id,
           name: input.name,
           description: input.description,
@@ -199,28 +204,32 @@ export const recipeRouter = createTRPCRouter({
         await tx.insert(recipeIngredients).values(
           input.ingredients.map((ingredient) => ({
             ...ingredient,
-            id: randomUUID() as string,
-            recipeId: recipeId as string,
+            recipeId: Number(insertId),
           })),
         );
 
         await tx.insert(recipeImages).values(
           input.images.map((imageLink) => ({
-            id: randomUUID() as string,
-            recipeId: recipeId as string,
+            recipeId: Number(insertId),
             link: imageLink,
           })),
         );
+
+        return insertId;
       });
 
-      return { id: recipeId as string };
+      return { id: insertId };
     }),
+
+  // edit: protectedProcedure
+
+  // delete: protectedProcedure
 
   handleLikeRecipe: protectedProcedure
     .input(
       z.object({
         isLiked: z.boolean(),
-        recipeId: z.string(),
+        recipeId: z.number(),
         creatorId: z.string(),
       }),
     )
@@ -236,7 +245,6 @@ export const recipeRouter = createTRPCRouter({
           );
       } else {
         await ctx.db.insert(recipeLikes).values({
-          id: randomUUID() as string,
           recipeId: input.recipeId,
           creatorId: input.creatorId,
           likedById: ctx.session.user.id,
@@ -244,17 +252,48 @@ export const recipeRouter = createTRPCRouter({
       }
     }),
 
+  getReviewPage: publicProcedure
+    .input(
+      z.object({
+        recipeId: z.number(),
+        page: z.number(),
+        perPage: z.number(),
+        // sortBy: z.string(),
+      }),
+    )
+    .query(async ({ input: { recipeId, page, perPage }, ctx }) => {
+      const reviewListBaseQuery = db
+        .select({
+          id: recipeReviews.id,
+          userId: users.id,
+          userName: users.name,
+          userAvatar: users.image,
+          rating: recipeReviews.rating,
+          content: recipeReviews.content,
+          createdAt: recipeReviews.createdAt,
+        })
+        .from(recipeReviews)
+        .where(eq(recipeReviews.recipeId, recipeId))
+        .leftJoin(users, eq(users.id, recipeReviews.userId))
+        .$dynamic();
+
+      withPagination(reviewListBaseQuery, page, perPage);
+
+      const reviewList = await reviewListBaseQuery;
+
+      return reviewList;
+    }),
+
   addReview: protectedProcedure
     .input(
       z.object({
-        recipeId: z.string(),
+        recipeId: z.number(),
         content: z.string(),
         rating: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
       await ctx.db.insert(recipeReviews).values({
-        id: randomUUID(),
         userId: ctx.session.user.id,
         recipeId: input.recipeId,
         content: input.content,
@@ -265,7 +304,7 @@ export const recipeRouter = createTRPCRouter({
   deleteReview: protectedProcedure
     .input(
       z.object({
-        reviewId: z.string(),
+        reviewId: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

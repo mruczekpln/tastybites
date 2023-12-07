@@ -1,10 +1,13 @@
 import { relations } from "drizzle-orm";
 import {
+  bigint,
   boolean,
+  index,
   int,
   mysqlEnum,
   mysqlTableCreator,
   primaryKey,
+  serial,
   smallint,
   text,
   timestamp,
@@ -51,15 +54,22 @@ export const verificationTokens = mysqlTable(
     compoundKey: primaryKey(vt.identifier, vt.token),
   }),
 );
-export const users = mysqlTable("user", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  hashedPassword: varchar("hashed_password", { length: 60 }),
-  emailVerified: boolean("emailVerified").default(false),
-  image: varchar("image", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+
+export const users = mysqlTable(
+  "user",
+  {
+    id: varchar("id", { length: 36 }).notNull().primaryKey(),
+    name: varchar("name", { length: 255 }),
+    email: varchar("email", { length: 255 }).notNull(),
+    hashedPassword: varchar("hashed_password", { length: 60 }),
+    emailVerified: boolean("emailVerified").default(false),
+    image: varchar("image", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    idIndex: index("idx_user_id").on(table.id),
+  }),
+);
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -68,17 +78,29 @@ export const usersRelations = relations(users, ({ many }) => ({
   recipeReviews: many(recipeReviews),
 }));
 
-export const recipes = mysqlTable("recipe", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  creatorId: varchar("creator_id", { length: 36 }).notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  description: text("description").notNull(),
-  instructions: text("instructions").notNull(),
-  category: varchar("category", { length: 10 }).notNull(),
-  cookingTime: smallint("cooking_time").notNull(),
-  difficultyLevel: varchar("difficulty_level", { length: 12 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const recipes = mysqlTable(
+  "recipe",
+  {
+    // id: varchar("id", { length: 36 }).notNull().primaryKey(),
+    id: serial("id").primaryKey(),
+    creatorId: varchar("creator_id", { length: 36 }).notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
+    description: text("description").notNull(),
+    instructions: text("instructions").notNull(),
+    category: varchar("category", { length: 10 }).notNull(),
+    cookingTime: smallint("cooking_time").notNull(),
+    difficultyLevel: mysqlEnum("difficulty_level", [
+      "easy",
+      "intermediate",
+      "advanced",
+    ]).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    idIdx: index("idx_recipe_id").on(table.id),
+    creatorIdIdx: index("idx_recipe_creator_id").on(table.creatorId),
+  }),
+);
 
 export const recipesRelations = relations(recipes, ({ one, many }) => ({
   users: one(users, { fields: [recipes.creatorId], references: [users.id] }),
@@ -89,8 +111,8 @@ export const recipesRelations = relations(recipes, ({ one, many }) => ({
 }));
 
 export const recipeImages = mysqlTable("recipe_image", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  recipeId: varchar("recipe_id", { length: 36 }).notNull(),
+  id: serial("id").primaryKey(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
   link: text("link").notNull(),
 });
 
@@ -101,13 +123,20 @@ export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
   }),
 }));
 
-export const recipeLikes = mysqlTable("recipe_like", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  recipeId: varchar("recipe_id", { length: 36 }).notNull(),
-  creatorId: varchar("creator_id", { length: 36 }).notNull(),
-  likedById: varchar("liked_by_id", { length: 36 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const recipeLikes = mysqlTable(
+  "recipe_like",
+  {
+    id: serial("id").primaryKey(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
+    creatorId: varchar("creator_id", { length: 36 }).notNull(),
+    likedById: varchar("liked_by_id", { length: 36 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    creatorId: index("idx_recipe_like_creator_id").on(table.creatorId),
+    likedById: index("idx_recipe_like_liked_by_id").on(table.likedById),
+  }),
+);
 
 export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
   user: one(users, { fields: [recipeLikes.likedById], references: [users.id] }),
@@ -118,8 +147,8 @@ export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
 }));
 
 export const recipeIngredients = mysqlTable("recipe_ingredient", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  recipeId: varchar("recipe_id", { length: 36 }).notNull(),
+  id: serial("id").primaryKey(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
   name: varchar("name", { length: 50 }).notNull(),
   amount: smallint("amount").notNull(),
   unit: mysqlEnum("unit", ["g", "ml", "pcs"]),
@@ -136,8 +165,8 @@ export const recipeIngredientsRelations = relations(
 );
 
 export const recipeReviews = mysqlTable("recipe_review", {
-  id: varchar("id", { length: 36 }).notNull().primaryKey(),
-  recipeId: varchar("recipe_id", { length: 36 }).notNull(),
+  id: serial("id").primaryKey(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
   userId: varchar("user_id", { length: 36 }).notNull(),
   rating: tinyint("rating").notNull(),
   content: text("content").notNull(),

@@ -23,7 +23,7 @@ const formSchema = z.object({
 export type RecipeReviewFormSchema = z.infer<typeof formSchema>;
 
 type RecipeReviewFormProps = {
-  recipeId: string;
+  recipeId: number;
 };
 export default function RecipeReviewForm({ recipeId }: RecipeReviewFormProps) {
   const router = useRouter();
