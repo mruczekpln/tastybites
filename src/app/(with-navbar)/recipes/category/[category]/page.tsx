@@ -4,24 +4,14 @@ import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
 import { CATEGORIES } from "~/lib/constants";
-import { type RecipeCategory } from "~/types";
-
-export type CategorySearchParams = {
-  searchQuery?: string;
-  page?: string;
-  perPage?: string;
-  cookingTimeRanges?: string;
-  difficultyLevels?: string;
-  ratings?: string;
-  sortBy?: "likes" | "rating" | "latest" | "name";
-};
+import { type RecipeCategory, type RecipeListSearchParams } from "~/types";
 
 export default function Category({
   params,
   searchParams,
 }: {
   params: { category: RecipeCategory };
-  searchParams: CategorySearchParams;
+  searchParams: RecipeListSearchParams;
 }) {
   const currentCategoryDetails = CATEGORIES[params.category];
 

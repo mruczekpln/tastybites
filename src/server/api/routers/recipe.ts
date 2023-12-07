@@ -1,16 +1,7 @@
 import { randomUUID } from "crypto";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  inArray,
-  like,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+import { and, count, eq, inArray, like, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
+import { withPagination, withSorting } from "~/server/db/dynamics";
 import {
   recipeImages,
   recipeIngredients,
@@ -100,14 +91,14 @@ export const recipeRouter = createTRPCRouter({
             ...(userId
               ? {
                   isUserLiking: sql.raw(
-                    `MAX(CASE WHEN tastybites_recipe_like.user_id = '${userId}' THEN 1 ELSE 0 END)`,
+                    `MAX(CASE WHEN tastybites_recipe_like.creator_id = '${userId}' THEN 1 ELSE 0 END)`,
                   ),
                 }
               : {}),
           })
           .from(recipes)
           .where(and(...recipeListWhere))
-          .leftJoin(users, eq(recipes.userId, users.id))
+          .leftJoin(users, eq(recipes.creatorId, users.id))
           .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
           .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
           .groupBy(recipes.id, users.name)
@@ -118,20 +109,9 @@ export const recipeRouter = createTRPCRouter({
             inArray(sql`ROUND(AVG(${recipeReviews.rating}), 0)`, ratingsArr),
           );
 
-        if (sortBy === "likes")
-          void recipeListBaseQuery.orderBy(sql`like_count desc`);
-        else if (sortBy === "name")
-          void recipeListBaseQuery.orderBy(asc(recipes.name));
-        else if (sortBy === "rating")
-          void recipeListBaseQuery.orderBy(sql`average_rating desc`);
-        else if (sortBy === "latest")
-          void recipeListBaseQuery.orderBy(desc(recipes.createdAt));
+        withSorting(recipeListBaseQuery, sortBy);
+        withPagination(recipeListBaseQuery, page, perPage);
 
-        void recipeListBaseQuery
-          .limit(perPage + 1 || 11)
-          .offset((page - 1) * perPage);
-
-        console.log(recipeListBaseQuery.toSQL());
         const recipeList = await recipeListBaseQuery;
 
         return recipeList as RecipeListItem[];
@@ -151,24 +131,25 @@ export const recipeRouter = createTRPCRouter({
           cookingTime: recipes.cookingTime,
           difficultyLevel: recipes.difficultyLevel,
           createdAt: recipes.createdAt,
+          ownerId: recipes.creatorId,
           username: users.name,
           like_count: sql`COUNT(${recipeLikes.id})`,
           ...(userId
             ? {
                 isUserLiking: sql.raw(
-                  `MAX(CASE WHEN tastybites_recipe_like.user_id = '${userId}' THEN 1 ELSE 0 END)`,
+                  `MAX(CASE WHEN tastybites_recipe_like.creator_id = '${userId}' THEN 1 ELSE 0 END)`,
                 ),
               }
             : {}),
         })
         .from(recipes)
         .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-        .leftJoin(users, eq(recipes.userId, users.id))
+        .leftJoin(users, eq(recipes.creatorId, users.id))
         .where(eq(recipes.id, recipeId))
         .groupBy(
           recipes.id,
           recipes.instructions,
-          recipes.userId,
+          recipes.creatorId,
           recipes.name,
           recipes.description,
           recipes.category,
@@ -205,8 +186,8 @@ export const recipeRouter = createTRPCRouter({
 
       await ctx.db.transaction(async (tx) => {
         await tx.insert(recipes).values({
-          id: recipeId,
-          userId: ctx.session.user.id,
+          id: recipeId as string,
+          creatorId: ctx.session.user.id,
           name: input.name,
           description: input.description,
           instructions: input.instructions,
@@ -240,6 +221,7 @@ export const recipeRouter = createTRPCRouter({
       z.object({
         isLiked: z.boolean(),
         recipeId: z.string(),
+        creatorId: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -248,15 +230,16 @@ export const recipeRouter = createTRPCRouter({
           .delete(recipeLikes)
           .where(
             and(
-              eq(recipeLikes.userId, ctx.session.user.id),
+              eq(recipeLikes.likedById, ctx.session.user.id),
               eq(recipeLikes.recipeId, input.recipeId),
             ),
           );
       } else {
         await ctx.db.insert(recipeLikes).values({
-          id: randomUUID(),
+          id: randomUUID() as string,
           recipeId: input.recipeId,
-          userId: ctx.session.user.id,
+          creatorId: input.creatorId,
+          likedById: ctx.session.user.id,
         });
       }
     }),
