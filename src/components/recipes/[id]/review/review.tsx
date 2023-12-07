@@ -5,10 +5,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Button from "~/components/ui/button";
 import { api } from "~/trpc/react";
-import { type Review } from "~/types";
+import { type ReviewListItem } from "~/types";
 
 type RecipeReviewProps = {
-  review: Review;
+  review: ReviewListItem;
   isWrittenByLoggedInUser: boolean;
 };
 export default function RecipeReview({
@@ -22,9 +22,9 @@ export default function RecipeReview({
     <div className="h-auto w-full rounded-lg border-2 border-black p-4 shadow-button">
       <div className="mb-4 flex items-center  justify-between">
         <div className="flex items-center gap-4">
-          {review.users.image ? (
+          {review.userAvatar ? (
             <Image
-              src={review.users.image}
+              src={review.userAvatar}
               alt="user-avatar"
               width={32}
               height={32}
@@ -33,7 +33,7 @@ export default function RecipeReview({
           ) : (
             <div className="h-8 w-8 rounded-full border-2 border-black"></div>
           )}
-          <b>{review.users.name}</b>
+          <b>{review.userName}</b>
           <p className="font-light">1 week ago</p>
           {isWrittenByLoggedInUser && (
             <Button
@@ -42,6 +42,7 @@ export default function RecipeReview({
                   { reviewId: review.id },
                   {
                     onSuccess: () => {
+                      console.log("refresh");
                       router.refresh();
                     },
                   },

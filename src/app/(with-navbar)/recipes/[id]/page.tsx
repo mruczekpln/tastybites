@@ -1,4 +1,3 @@
-import { unstable_cache as cache } from "next/cache";
 import RecipeStats from "~/components/recipes/[id]/RecipeStats";
 import RecipeIngredientList from "~/components/recipes/[id]/ingredient-list";
 import RecipeReviewForm from "~/components/recipes/[id]/review/form";
@@ -8,42 +7,31 @@ import RecipeShowcase from "~/components/recipes/[id]/showcase";
 import RecipeSummary from "~/components/recipes/[id]/summary";
 import RouteDisplay from "~/components/recipes/path-display";
 import { getServerAuthSession } from "~/server/auth";
-import { db } from "~/server/db";
 import { api } from "~/trpc/server";
+import { type PaginationSearchParams } from "~/types";
 
-const getReviews = cache(
-  async (recipeId: string) => {
-    const reviews = await db.query.recipeReviews.findMany({
-      where: (recipeReviews, { eq }) => eq(recipeReviews.recipeId, recipeId),
-      with: {
-        users: {
-          columns: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-      },
-      limit: 10,
-    });
-
-    return reviews;
-  },
-  undefined,
-  { revalidate: 5 },
-);
-
-export default async function Recipe({ params }: { params: { id: string } }) {
+export default async function Recipe({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: PaginationSearchParams;
+}) {
   const session = await getServerAuthSession();
   const recipeData = await api.recipe.getById.query({
-    recipeId: params.id,
+    recipeId: Number(params.id),
     userId: session?.user.id,
   });
-  const reviewsData = await getReviews(params.id);
+
+  const reviewList = await api.recipe.getReviewPage.query({
+    recipeId: Number(params.id),
+    page: Number(searchParams.page ?? 1),
+    perPage: Number(searchParams.perPage ?? 10),
+  });
 
   const averageRating =
-    reviewsData.map(({ rating }) => rating).reduce((sum, num) => sum + num, 0) /
-    (reviewsData.length || 1);
+    reviewList.map(({ rating }) => rating).reduce((sum, num) => sum + num, 0) /
+    (reviewList.length || 1);
 
   return (
     <div className="min-h-screen w-full">
@@ -77,7 +65,7 @@ export default async function Recipe({ params }: { params: { id: string } }) {
           <RecipeShowcase></RecipeShowcase>
           <RecipeSummary
             reviews={{
-              reviewCount: reviewsData.length,
+              reviewCount: reviewList.length,
               averageRating,
             }}
             cookingTime={recipeData!.cookingTime}
@@ -95,7 +83,7 @@ export default async function Recipe({ params }: { params: { id: string } }) {
           <div className="w-2/3">
             <h2 className="text-4xl font-bold">Write your review</h2>
             {session ? (
-              <RecipeReviewForm recipeId={params.id}></RecipeReviewForm>
+              <RecipeReviewForm recipeId={Number(params.id)}></RecipeReviewForm>
             ) : (
               <p className="mt-4 text-2xl">
                 You must be logged in to leave a review!
@@ -106,11 +94,12 @@ export default async function Recipe({ params }: { params: { id: string } }) {
             </h2>
             <RecipeReviewSummary
               averageRating={averageRating}
-              ratings={reviewsData.map(({ rating }) => rating)}
+              ratings={reviewList.map(({ rating }) => rating)}
             ></RecipeReviewSummary>
             <RecipeReviewList
               userId={session?.user.id}
-              reviews={reviewsData}
+              reviewList={reviewList}
+              searchParams={searchParams}
             ></RecipeReviewList>
           </div>
 
