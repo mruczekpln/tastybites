@@ -4,65 +4,22 @@ import imageCompression from "browser-image-compression";
 import { Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState, type ChangeEvent } from "react";
+import type { TastybitesFileRouter } from "~/app/api/uploadthing/main";
 import Button from "~/components/ui/button";
+import { UploadDropzone } from "~/lib/uploadthing/ui";
+import { FileData } from "./form";
 
-type FileData = {
-  index: string;
-  file: File;
-  url: string;
+type ImageUploadProps = {
+  onImageSelect: (e: ChangeEvent<HTMLInputElement>) => void;
+  onImageDelete: (index: string) => void;
+  files: FileData[];
 };
 
-export default function ImageUpload() {
-  // const [selectedFile, setSelectedFile] = useState<File>();
-  const [files, setFiles] = useState<FileData[]>([] as FileData[]);
-
-  useEffect(() => {
-    return () => files.forEach(({ url }) => URL.revokeObjectURL(url));
-  }, [files]);
-
-  // useEffect()
-
-  async function onImageSelect(e: ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files || e.target.files.length === 0) return;
-    // setSelectedFile(e.target.files[0]);
-    const file = e.target.files[0]!;
-    if (files.find(({ index }) => index === file.name)) return;
-
-    console.log("originalFile instanceof Blob", file instanceof Blob); // true
-    console.log(`originalFile size ${file.size / 1024 / 1024} MB`);
-
-    const options = {
-      maxSizeMB: 1.5,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-
-    try {
-      const compressedFile = await imageCompression(file, options);
-      console.log(
-        "compressedFile instanceof Blob",
-        compressedFile instanceof Blob,
-      );
-
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`,
-      );
-
-      const imageUrl = URL.createObjectURL(compressedFile);
-      setFiles((prev) => [
-        ...prev,
-        { index: file.name, file: compressedFile, url: imageUrl },
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  function onImageDelete(index: string) {
-    URL.revokeObjectURL(files.find((file) => file.index === index)?.url ?? "");
-    setFiles((prev) => prev.filter((file) => index !== file.index));
-  }
-
+export default function ImageUpload({
+  onImageSelect,
+  onImageDelete,
+  files,
+}: ImageUploadProps) {
   return (
     <>
       <div>
@@ -71,9 +28,9 @@ export default function ImageUpload() {
         </h2>
         <p>First - title image</p>
       </div>
-      <div className="relative col-span-2 flex h-80 w-full gap-4 overflow-x-scroll rounded-xl border-2 border-black p-4">
+      <div className="relative col-span-2 flex h-96 w-full gap-4 overflow-x-scroll rounded-xl border-2 border-black p-4">
         {files
-          ? files.map((image, index) => (
+          ? files.map((image) => (
               <div
                 key={image.index}
                 className="group relative h-full shrink-0 overflow-hidden rounded-xl border-black first-of-type:border-2"
