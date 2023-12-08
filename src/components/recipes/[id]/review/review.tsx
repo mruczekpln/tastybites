@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDistanceToNow } from "date-fns";
 import { Star, Trash } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -34,7 +35,9 @@ export default function RecipeReview({
             <div className="h-8 w-8 rounded-full border-2 border-black"></div>
           )}
           <b>{review.userName}</b>
-          <p className="font-light">1 week ago</p>
+          <p className="font-light">
+            {formatDistanceToNow(review.createdAt)} ago
+          </p>
           {isWrittenByLoggedInUser && (
             <Button
               onClick={() => {

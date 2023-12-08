@@ -10,7 +10,7 @@ type RecipeListProps = {
   searchParams: RecipeListSearchParams;
   category: RecipeCategory;
 };
-export default async function RecipeList({
+export default async function CategoryRecipeList({
   searchParams,
   category,
 }: RecipeListProps) {

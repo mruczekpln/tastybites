@@ -4,40 +4,20 @@ import Pagination from "~/components/recipes/pagination";
 import RecipeCard from "~/components/recipes/recipe-card";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { withPagination, withSorting } from "~/server/db/dynamics";
 import { recipeLikes, recipeReviews, recipes } from "~/server/db/schema";
+import { api } from "~/trpc/server";
 import { type RecipeListSearchParams, type SortBy as TSortBy } from "~/types";
 
 async function getCreated(
   userId: string,
   { page, perPage, sortBy }: { page: number; perPage: number; sortBy: TSortBy },
 ) {
-  const createdRecipeListBaseQuery = db
-    .select({
-      id: recipes.id,
-      name: recipes.name,
-      category: recipes.category,
-      difficultyLevel: recipes.difficultyLevel,
-      cookingTime: recipes.cookingTime,
-      likeCount: count(recipeLikes.id).as("like_count"),
-      reviewCount: count(recipeReviews.id),
-      averageRating:
-        sql<number>`CASE WHEN AVG(${recipeReviews.rating}) THEN AVG(${recipeReviews.rating}) ELSE 0 END`.as(
-          "average_rating",
-        ),
-    })
-    .from(recipes)
-    .where(eq(recipes.creatorId, userId))
-    .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
-    .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-    .groupBy(recipes.id)
-    .$dynamic();
-
-  withSorting(createdRecipeListBaseQuery, sortBy);
-  withPagination(createdRecipeListBaseQuery, page, perPage);
-
-  const createdRecipeList = await createdRecipeListBaseQuery;
-  console.log(createdRecipeListBaseQuery.toSQL());
+  const createdRecipeList = await api.user.getCreatedRecipes.query({
+    userId,
+    page,
+    perPage,
+    sortBy,
+  });
 
   const [mostLiked] = await db
     .select({
@@ -48,10 +28,9 @@ async function getCreated(
       cookingTime: recipes.cookingTime,
       likeCount: count(recipeLikes.id).as("like_count"),
       reviewCount: count(recipeReviews.id),
-      averageRating:
-        sql<number>`CASE WHEN AVG(${recipeReviews.rating}) THEN AVG(${recipeReviews.rating}) ELSE 0 END`.as(
-          "average_rating",
-        ),
+      averageRating: sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
+        "average_rating",
+      ),
     })
     .from(recipes)
     .where(eq(recipes.creatorId, userId))

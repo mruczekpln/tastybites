@@ -1,21 +1,24 @@
 "use client";
 
-import { LinkIcon } from "lucide-react";
-import Link from "next/link";
-import Button from "../ui/button";
-import Input from "../ui/input";
-import { z } from "zod";
-import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LinkIcon } from "lucide-react";
 import { type ClientSafeProvider } from "next-auth/react";
-import AuthWithGithub from "./auth-with-github";
+import Link from "next/link";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { z } from "zod";
 import { api } from "~/trpc/react";
 import NavLink from "../link";
+import Button from "../ui/button";
+import Input from "../ui/input";
+import AuthWithGithub from "./auth-with-github";
 
 const formSchema = z
   .object({
     username: z
       .string()
+      .regex(new RegExp(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/gi), {
+        message: "Username can include only letters, dots, and underscores.",
+      })
       .trim()
       .min(4, { message: "Username must have at least 4 characters." }),
     email: z
@@ -24,7 +27,6 @@ const formSchema = z
       .min(4, { message: "Email is required!" })
       .email({ message: "Input a valid email!" }),
     repeatEmail: z.string().trim(),
-    // { message: "Input a valid email!" }
     password: z
       .string()
       .min(8, { message: "Password must have at least 8 characters." }),

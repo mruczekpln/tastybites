@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import RedirectForm from "~/components/landing/redirect-form";
 import NavLink from "~/components/link";
-import Button from "~/components/ui/button";
-import Input from "~/components/ui/input";
-import { api } from "~/trpc/react";
 
 function Hero() {
   return (
@@ -194,24 +192,7 @@ function Featured() {
           <h1 className="font-title text-6xl leading-none">
             What do you wanna make today?
           </h1>
-          <form className="flex h-16 w-full gap-8">
-            <Input
-              placeholder="Whatever you like!"
-              className="w-full pl-4"
-            ></Input>
-            <Button
-              name="submit"
-              type="submit"
-              className="aspect-square min-w-[64px] bg-yellow-600 p-2"
-            >
-              <Image
-                src="/navbar-logo.svg"
-                alt="logo"
-                width={48}
-                height={48}
-              ></Image>
-            </Button>
-          </form>
+          <RedirectForm></RedirectForm>
           <div className="flex w-min items-center gap-4">
             <Image
               src="/featured/bracket-left.svg"
@@ -237,12 +218,40 @@ function Featured() {
             ></Image>
             <p className="text-2xl font-extrabold">You can try:</p>
           </div>
-          <div className="flex max-h-full flex-wrap gap-x-8 gap-y-2 [&>*]:cursor-default [&>*]:text-3xl">
-            <NavLink className="hover:underline">for breakfast.</NavLink>
-            <NavLink className="hover:underline">for lunch.</NavLink>
-            <NavLink className="hover:underline">for dinner.</NavLink>
-            <NavLink className="hover:underline">a snack.</NavLink>
-            <NavLink className="hover:underline">as a drink.</NavLink>
+          <div className="flex max-h-full flex-wrap gap-x-8 gap-y-2 [&>*]:cursor-default [&>*]:text-2xl">
+            <NavLink
+              href="/recipes/category/breakfast"
+              className="hover:underline"
+            >
+              for breakfast.
+            </NavLink>
+            <NavLink href="/recipes/category/lunch" className="hover:underline">
+              for lunch.
+            </NavLink>
+            <NavLink
+              href="/recipes/category/dinner"
+              className="hover:underline"
+            >
+              for dinner.
+            </NavLink>
+            <NavLink
+              href="/recipes/category/appetizers"
+              className="hover:underline"
+            >
+              a snack.
+            </NavLink>
+            <NavLink
+              href="/recipes/category/drinks"
+              className="hover:underline"
+            >
+              as a drink.
+            </NavLink>
+            <NavLink
+              href="/recipes/category/desserts"
+              className="hover:underline"
+            >
+              something sweet.
+            </NavLink>
           </div>
         </section>
         <div

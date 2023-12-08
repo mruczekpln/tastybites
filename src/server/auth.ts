@@ -1,16 +1,16 @@
-import GithubProvider from "next-auth/providers/github";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GithubProvider, { type GithubProfile } from "next-auth/providers/github";
 
+import bcrypt from "bcrypt";
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 import { mysqlTable } from "~/server/db/schema";
-import bcrypt from "bcrypt";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 3000,
+    maxAge: 3600,
   },
   pages: {
     signIn: "/auth/login",
@@ -80,6 +80,14 @@ export const authOptions: NextAuthOptions = {
     GithubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+      profile(profile: GithubProfile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
     }),
   ],
 };

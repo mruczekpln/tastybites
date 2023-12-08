@@ -59,7 +59,7 @@ export const users = mysqlTable(
   "user",
   {
     id: varchar("id", { length: 36 }).notNull().primaryKey(),
-    name: varchar("name", { length: 255 }),
+    name: varchar("name", { length: 255 }).unique(),
     email: varchar("email", { length: 255 }).notNull(),
     hashedPassword: varchar("hashed_password", { length: 60 }),
     emailVerified: boolean("emailVerified").default(false),
@@ -133,8 +133,9 @@ export const recipeLikes = mysqlTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    creatorId: index("idx_recipe_like_creator_id").on(table.creatorId),
-    likedById: index("idx_recipe_like_liked_by_id").on(table.likedById),
+    recipeIdIdx: index("idx_recipe_like_recipe_id").on(table.recipeId),
+    creatorIdIdx: index("idx_recipe_like_creator_id").on(table.creatorId),
+    likedByIdIdx: index("idx_recipe_like_liked_by_id").on(table.likedById),
   }),
 );
 
@@ -164,14 +165,20 @@ export const recipeIngredientsRelations = relations(
   }),
 );
 
-export const recipeReviews = mysqlTable("recipe_review", {
-  id: serial("id").primaryKey(),
-  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
-  userId: varchar("user_id", { length: 36 }).notNull(),
-  rating: tinyint("rating").notNull(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const recipeReviews = mysqlTable(
+  "recipe_review",
+  {
+    id: serial("id").primaryKey(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
+    userId: varchar("user_id", { length: 36 }).notNull(),
+    rating: tinyint("rating").notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    recipeIdTdx: index("idx_recipe_review_recipe_id").on(table.recipeId),
+  }),
+);
 
 export const recipeReviewsRelations = relations(recipeReviews, ({ one }) => ({
   users: one(users, { fields: [recipeReviews.userId], references: [users.id] }),
