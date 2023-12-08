@@ -196,7 +196,6 @@ export const recipeRouter = createTRPCRouter({
           z.literal("intermediate"),
           z.literal("advanced"),
         ]),
-        images: z.array(z.string()),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -218,12 +217,12 @@ export const recipeRouter = createTRPCRouter({
           })),
         );
 
-        await tx.insert(recipeImages).values(
-          input.images.map((imageLink) => ({
-            recipeId: Number(insertId),
-            link: imageLink,
-          })),
-        );
+        // await tx.insert(recipeImages).values(
+        //   input.images.map((imageLink) => ({
+        //     recipeId: Number(insertId),
+        //     link: imageLink,
+        //   })),
+        // );
 
         return insertId;
       });

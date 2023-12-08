@@ -10,6 +10,9 @@ import Input from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import ImageUpload from "./image-upload";
 import CookingTimeSlider from "./time-slider";
+import { uploadFiles } from "~/lib/uploadthing/helpers";
+import { ChangeEvent, useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
 
 const formSchema = z.object({
   name: z
@@ -62,8 +65,61 @@ const formSchema = z.object({
 
 export type CreateRecipeFormSchema = z.infer<typeof formSchema>;
 
+export type FileData = {
+  index: string;
+  file: File;
+  url: string;
+};
+
 export default function CreateRecipeForm() {
   const router = useRouter();
+
+  const [files, setFiles] = useState<FileData[]>([] as FileData[]);
+
+  async function onImageSelect(e: ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files || e.target.files.length === 0) return;
+    // setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0]!;
+    if (files.find(({ index }) => index === file.name)) return;
+
+    console.log("originalFile instanceof Blob", file instanceof Blob); // true
+    console.log(`originalFile size ${file.size / 1024 / 1024} MB`);
+
+    const options = {
+      maxSizeMB: files.length === 0 ? 4 : 2,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        "compressedFile instanceof Blob",
+        compressedFile instanceof Blob,
+      );
+
+      console.log(
+        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`,
+      );
+
+      const imageUrl = URL.createObjectURL(compressedFile);
+      setFiles((prev) => [
+        ...prev,
+        { index: file.name, file: compressedFile, url: imageUrl },
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function onImageDelete(index: string) {
+    URL.revokeObjectURL(files.find((file) => file.index === index)?.url ?? "");
+    setFiles((prev) => prev.filter((file) => index !== file.index));
+  }
+
+  useEffect(() => {
+    return () => files.forEach(({ url }) => URL.revokeObjectURL(url));
+  }, [files]);
 
   const {
     register,
@@ -79,18 +135,31 @@ export default function CreateRecipeForm() {
 
   const addRecipe = api.recipe.add.useMutation();
 
+  async function addRecipeImages(images: File[], recipeId: number) {
+    await uploadFiles("recipeImage", {
+      input: { recipeId, isTitle: true },
+      files: [images[0]!],
+    });
+
+    await uploadFiles("recipeImage", {
+      input: {
+        recipeId,
+      },
+      files: images.slice(1),
+    });
+
+    router.push(`/recipes/${recipeId}`);
+  }
+
   const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) => {
-    addRecipe.mutate(
-      {
-        ...data,
-        images: ["imagelink1", "imagelink2", "imagelink3"],
+    addRecipe.mutate(data, {
+      onSuccess: ({ id }) => {
+        void addRecipeImages(
+          files.map(({ file }) => file),
+          Number(id),
+        );
       },
-      {
-        onSuccess: ({ id }) => {
-          router.push(`/recipes/${id}`);
-        },
-      },
-    );
+    });
   };
 
   return (
@@ -100,7 +169,11 @@ export default function CreateRecipeForm() {
     >
       <h1 className="mb-4 font-title text-6xl">Add your recipe! </h1>
       <div className="grid w-full grid-flow-row auto-rows-min grid-cols-2 gap-x-16 gap-y-8 border-t-2 border-black pt-8">
-        <ImageUpload></ImageUpload>
+        <ImageUpload
+          files={files}
+          onImageSelect={onImageSelect}
+          onImageDelete={onImageDelete}
+        ></ImageUpload>
         <div>
           <label>
             <h2 className="mb-4 text-4xl font-bold">
