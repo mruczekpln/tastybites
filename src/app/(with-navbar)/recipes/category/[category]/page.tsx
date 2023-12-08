@@ -5,7 +5,6 @@ import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
 import { CATEGORIES } from "~/lib/constants";
 import { type RecipeCategory, type RecipeListSearchParams } from "~/types";
-
 export default function Category({
   params,
   searchParams,

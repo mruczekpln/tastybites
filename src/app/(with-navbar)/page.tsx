@@ -3,7 +3,7 @@ import Link from "next/link";
 import RedirectForm from "~/components/landing/redirect-form";
 import NavLink from "~/components/link";
 
-export const dynamic = "force-static";
+// export const dynamic = "force-static";
 
 function Hero() {
   return (

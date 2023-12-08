@@ -94,6 +94,7 @@ export const recipes = mysqlTable(
       "intermediate",
       "advanced",
     ]).notNull(),
+    titleImageUrl: varchar("title_image_url", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
@@ -113,7 +114,7 @@ export const recipesRelations = relations(recipes, ({ one, many }) => ({
 export const recipeImages = mysqlTable("recipe_image", {
   id: serial("id").primaryKey(),
   recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
-  link: text("link").notNull(),
+  url: varchar("url", { length: 255 }).notNull(),
 });
 
 export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
