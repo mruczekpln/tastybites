@@ -272,7 +272,7 @@ export const recipeRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input: { recipeId, page, perPage }, ctx }) => {
-      const reviewListBaseQuery = db
+      const reviewListBaseQuery = ctx.db
         .select({
           id: recipeReviews.id,
           userId: users.id,
