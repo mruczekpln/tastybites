@@ -12,7 +12,7 @@ const space_grotesk = Space_Grotesk({
 });
 
 const titleFont = localFont({
-  src: "../nyghtserif.woff2",
+  src: "./nyghtserif.woff2",
   variable: "--font-title",
 });
 

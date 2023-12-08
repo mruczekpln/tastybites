@@ -2,20 +2,17 @@
 
 import {
   Bookmark,
+  ChevronRight,
   GanttChart,
   Library,
   LogOut,
   Settings,
   type LucideIcon,
-  Croissant,
-  ChevronRight,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import RouteDisplay from "../recipes/path-display";
 import { type ComponentProps } from "react";
-import Button from "../ui/button";
-import { signOut } from "next-auth/react";
 
 type SidebarLinkProps = {
   pathname: string;

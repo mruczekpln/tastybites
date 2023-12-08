@@ -1,5 +1,5 @@
 import CategoryList from "~/components/recipes/category/category-list";
-import RecipeList from "~/components/recipes/category/recipe-list";
+import CategoryRecipeList from "~/components/recipes/category/recipe-list";
 import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
@@ -36,10 +36,10 @@ export default function Category({
         <CategoryList></CategoryList>
         <SortBy></SortBy>
       </div>
-      <RecipeList
+      <CategoryRecipeList
         searchParams={searchParams}
         category={params.category}
-      ></RecipeList>
+      ></CategoryRecipeList>
     </div>
   );
 }

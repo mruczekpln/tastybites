@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Logo from "./logo";
 import Link from "next/link";
 import NavLink from "./link";
+import Logo from "./logo";
 
 export default function Footer() {
   return (
@@ -23,7 +23,7 @@ export default function Footer() {
               target="_blank"
               className="ml-4 cursor-pointer text-5xl font-bold duration-75 hover:tracking-wide"
             >
-              yummycoffee
+              mruczekpln
             </Link>
           </h2>
           <div>

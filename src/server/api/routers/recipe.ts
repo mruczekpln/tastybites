@@ -1,4 +1,13 @@
-import { and, count, eq, inArray, like, sql, type SQL } from "drizzle-orm";
+import {
+  and,
+  count,
+  countDistinct,
+  eq,
+  inArray,
+  like,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { withPagination, withSorting } from "~/server/db/dynamics";
@@ -86,16 +95,16 @@ export const recipeRouter = createTRPCRouter({
             difficultyLevel: recipes.difficultyLevel,
             cookingTime: recipes.cookingTime,
             username: users.name,
-            likeCount: count(recipeLikes.id).as("like_count"),
-            reviewCount: count(recipeReviews.id),
+            likeCount: countDistinct(recipeLikes.id).as("like_count"),
+            reviewCount: countDistinct(recipeReviews.id),
             averageRating:
-              sql<number>`CASE WHEN AVG(${recipeReviews.rating}) THEN AVG(${recipeReviews.rating}) ELSE 0 END`.as(
+              sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
                 "average_rating",
               ),
             ...(userId
               ? {
                   isUserLiking: sql.raw(
-                    `MAX(CASE WHEN tastybites_recipe_like.creator_id = '${userId}' THEN 1 ELSE 0 END)`,
+                    `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
                   ),
                 }
               : {}),
@@ -117,6 +126,7 @@ export const recipeRouter = createTRPCRouter({
         withPagination(recipeListBaseQuery, page, perPage);
 
         const recipeList = await recipeListBaseQuery;
+        console.log(recipeList);
 
         return recipeList as RecipeListItem[];
       },
@@ -137,11 +147,11 @@ export const recipeRouter = createTRPCRouter({
           createdAt: recipes.createdAt,
           ownerId: recipes.creatorId,
           username: users.name,
-          like_count: sql`COUNT(${recipeLikes.id})`,
+          like_count: count(recipeLikes.id),
           ...(userId
             ? {
                 isUserLiking: sql.raw(
-                  `MAX(CASE WHEN tastybites_recipe_like.creator_id = '${userId}' THEN 1 ELSE 0 END)`,
+                  `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
                 ),
               }
             : {}),

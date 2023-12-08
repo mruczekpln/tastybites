@@ -20,10 +20,9 @@ async function getLiked(
       cookingTime: recipes.cookingTime,
       likeCount: count(recipeLikes.id).as("like_count"),
       reviewCount: count(recipeReviews.id),
-      averageRating:
-        sql<number>`CASE WHEN AVG(${recipeReviews.rating}) THEN AVG(${recipeReviews.rating}) ELSE 0 END`.as(
-          "average_rating",
-        ),
+      averageRating: sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
+        "average_rating",
+      ),
     })
     .from(recipes)
     .where(eq(recipeLikes.likedById, userId))

@@ -1,10 +1,10 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
+import { z } from "zod";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
-import { randomUUID } from "crypto";
-import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const accountRouter = createTRPCRouter({
   protected: protectedProcedure.query(() => ({
@@ -20,13 +20,13 @@ export const accountRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const existingUser = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.email, input.email),
+        where: (users, { eq, or }) => or(eq(users.email, input.email), eq(users.name, input.username)),
       });
 
       if (existingUser)
         throw new TRPCError({
           code: "CONFLICT",
-          message: "Account with this email already exists.",
+          message: "Account with this email or username already exists.",
         });
 
       const hashedPassword = await bcrypt.hash(input.password, 10);

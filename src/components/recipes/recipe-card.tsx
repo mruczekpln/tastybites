@@ -53,7 +53,9 @@ export default function RecipeCard({
                     size={18}
                   />
                 ))}
-                <p className="ml-2 text-sm">{reviewCount} reviews</p>
+                <p className="ml-2 text-sm">
+                  {reviewCount} {reviewCount > 1 ? "reviews" : "review"}
+                </p>
               </div>
             ) : (
               <p className="mt-1 text-sm">0 reviews</p>
