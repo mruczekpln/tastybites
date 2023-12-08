@@ -88,10 +88,15 @@ export default function RecipeCard({
             </p>
           </div>
           {!hideOwner && (
-            <p className="cursor-pointer whitespace-nowrap">
+            <div className="cursor-pointer whitespace-nowrap">
               <b className="pr-2">recipe by:</b>{" "}
-              <span className="hover:underline">{username}</span>
-            </p>
+              <Link
+                href={`/account/${username}`}
+                className="z-30 hover:underline"
+              >
+                {username}
+              </Link>
+            </div>
           )}
         </div>
       </div>

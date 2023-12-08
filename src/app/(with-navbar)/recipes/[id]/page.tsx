@@ -1,3 +1,4 @@
+import Link from "next/link";
 import RecipeStats from "~/components/recipes/[id]/RecipeStats";
 import RecipeIngredientList from "~/components/recipes/[id]/ingredient-list";
 import RecipeReviewForm from "~/components/recipes/[id]/review/form";
@@ -30,8 +31,9 @@ export default async function Recipe({
   });
 
   const averageRating =
-    reviewList.map(({ rating }) => rating).reduce((sum, num) => sum + num, 0) /
-    (reviewList.length || 1);
+    reviewList
+      .map(({ rating }: { rating: number }) => rating)
+      .reduce((sum, num) => sum + num, 0) / (reviewList.length || 1);
 
   return (
     <div className="min-h-screen w-full">
@@ -50,7 +52,12 @@ export default async function Recipe({
         <div className="flex w-full justify-between">
           <h2 className="mb-4 mt-2 text-2xl">
             <b>by: </b>
-            {recipeData?.username}
+            <Link
+              className="hover:underline"
+              href={`/account/${recipeData?.username}`}
+            >
+              {recipeData?.username}
+            </Link>
           </h2>
           <RecipeStats
             isLoggedIn={!!session}
@@ -74,7 +81,9 @@ export default async function Recipe({
           ></RecipeSummary>
         </div>
 
-        <RecipeIngredientList recipeId={params.id}></RecipeIngredientList>
+        <RecipeIngredientList
+          recipeId={Number(params.id)}
+        ></RecipeIngredientList>
 
         <h2 className="mb-4 mt-16 text-4xl font-bold">Instructions</h2>
         <p className="text-xl">{recipeData?.instructions}</p>

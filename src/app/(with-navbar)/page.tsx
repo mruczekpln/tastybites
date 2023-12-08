@@ -3,6 +3,8 @@ import Link from "next/link";
 import RedirectForm from "~/components/landing/redirect-form";
 import NavLink from "~/components/link";
 
+export const dynamic = "force-static";
+
 function Hero() {
   return (
     <div
@@ -23,6 +25,7 @@ function Hero() {
                 width={64}
                 height={64}
                 className="inline rotate-[100deg]"
+                priority
               ></Image>
             </h1>
             <p className="w-3/4 text-2xl leading-loose">
@@ -33,6 +36,7 @@ function Hero() {
                 width={32}
                 height={32}
                 className="relative bottom-1 inline"
+                priority
               ></Image>
               .
               <br />
@@ -50,6 +54,7 @@ function Hero() {
                 width={64}
                 height={64}
                 className="rotate-90"
+                priority
               ></Image>
             </div>
           </div>
@@ -76,6 +81,7 @@ function Hero() {
             alt="illustration"
             width={600}
             height={600}
+            priority
           ></Image>
         </section>
       </main>
@@ -94,6 +100,7 @@ function PoweredBy() {
             alt="T3 Stack"
             width={96}
             height={96}
+            priority
           ></Image>
         </Link>
         <p className="text-2xl">+</p>
@@ -104,6 +111,7 @@ function PoweredBy() {
             alt="PlanetScale"
             width={200}
             height={96}
+            priority
           ></Image>
         </Link>
       </div>

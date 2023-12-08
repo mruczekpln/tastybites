@@ -74,7 +74,7 @@ export default function AccountSidebar() {
       <p className="ml-8 font-bold text-gray-100/50">Recipes</p>
       <SidebarLink
         pathname={pathname}
-        href="/account/recipes"
+        href="/account/recipes?sortBy=latest"
         icon={Library}
         text="Your Recipes"
       ></SidebarLink>

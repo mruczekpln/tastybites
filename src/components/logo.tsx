@@ -6,6 +6,7 @@ export default function Logo() {
     <Link
       href="/"
       className="z-10 flex h-min cursor-pointer items-center gap-2"
+      prefetch={false}
     >
       <Image
         src="/navbar-logo.svg"
