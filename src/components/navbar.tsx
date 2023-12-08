@@ -1,10 +1,10 @@
 // "use client";
 
-import NavLink from "./link";
-import Logo from "./logo";
 import Image from "next/image";
 import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
+import NavLink from "./link";
+import Logo from "./logo";
 
 export default async function Navbar() {
   const session = await getServerAuthSession();

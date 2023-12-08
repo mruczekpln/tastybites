@@ -12,6 +12,7 @@ export default function CategoryGrid() {
             className="flex cursor-pointer flex-col items-center justify-between gap-2 rounded-lg border-2 border-black bg-yellow-100 p-8 text-center shadow-button hover:translate-x-[2px] hover:translate-y-[-2px]"
             href={item.href}
             key={index}
+            prefetch={false}
           >
             <h2 className="text-3xl font-bold">{item.name}</h2>
             {item.imagePath && (

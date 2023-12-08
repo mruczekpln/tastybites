@@ -1,6 +1,7 @@
-import { ChevronRight } from "lucide-react";
 import CategoryGrid from "~/components/recipes/category-grid";
 import RouteDisplay from "~/components/recipes/path-display";
+
+export const dynamic = "force-static";
 
 export default function Recipes() {
   return (

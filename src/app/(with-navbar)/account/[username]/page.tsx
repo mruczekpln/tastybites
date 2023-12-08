@@ -1,55 +1,10 @@
-import { formatRelative } from "date-fns";
-import { count, eq } from "drizzle-orm";
 import { ChefHat, Heart } from "lucide-react";
 import Image from "next/image";
 import OverviewCard from "~/components/account/overview-card";
 import Pagination from "~/components/recipes/pagination";
 import RecipeCard from "~/components/recipes/recipe-card";
-import { db } from "~/server/db";
-import { recipeLikes, recipes, users } from "~/server/db/schema";
 import { api } from "~/trpc/server";
 import { type PaginationSearchParams } from "~/types";
-
-async function getUserData(
-  username: string,
-  params: { page: number; perPage: number },
-) {
-  const [userData] = await db
-    .select()
-    .from(users)
-    .where(eq(users.name, username))
-    .limit(1);
-
-  if (!userData) return { userData: null, userRecipes: null };
-
-  const [createdRecipesCount] = await db
-    .select({
-      createdRecipes: count(recipes.id),
-    })
-    .from(recipes)
-    .where(eq(recipes.creatorId, userData.id));
-
-  const [createdRecipesLikesCount] = await db
-    .select({
-      createdRecipesLikes: count(recipeLikes.recipeId),
-    })
-    .from(recipeLikes)
-    .where(eq(recipeLikes.creatorId, userData.id));
-
-  const createdRecipeList = await api.user.getCreatedRecipes.query({
-    userId: userData.id,
-    page: params.page,
-    perPage: params.perPage,
-    // sortBy: "likes",
-  });
-
-  return {
-    userData,
-    createdRecipeList,
-    createdRecipesCount: createdRecipesCount?.createdRecipes,
-    createdRecipesLikesCount: createdRecipesLikesCount?.createdRecipesLikes,
-  };
-}
 
 export default async function UserAccount({
   params,
@@ -65,12 +20,8 @@ export default async function UserAccount({
   const page = Number(searchParams.page ?? 1);
   const perPage = Number(searchParams.perPage ?? 10);
 
-  const {
-    userData,
-    createdRecipeList,
-    createdRecipesCount,
-    createdRecipesLikesCount,
-  } = await getUserData(decodedUsername, { page, perPage });
+  const { userData, createdRecipesCount, createdRecipesLikesCount } =
+    await api.user.getData.query({ username: decodedUsername });
 
   if (!userData)
     return (
@@ -89,6 +40,12 @@ export default async function UserAccount({
       </div>
     );
 
+  const createdRecipeList = await api.user.getCreatedRecipes.query({
+    userId: userData.id,
+    page,
+    perPage,
+  });
+
   return (
     <div className="mx-auto h-screen w-full max-w-screen-xl pt-32">
       <div className="flex justify-between">
@@ -106,7 +63,7 @@ export default async function UserAccount({
           </div>
           <div>
             <h1 className="font-title text-4xl">{userData.name}</h1>
-            <p>joined {formatRelative(userData.createdAt, new Date())}</p>
+            {/* <p>joined {formatRelative(userData.createdAt, new Date())}</p> */}
           </div>
         </div>
         <div className="flex items-center gap-8">
