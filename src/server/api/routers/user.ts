@@ -1,7 +1,14 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { withPagination, withSorting } from "~/server/db/dynamics";
-import { recipeLikes, recipeReviews, recipes, users } from "~/server/db/schema";
+import {
+  recipeImages,
+  recipeLikes,
+  recipeReviews,
+  recipes,
+  users,
+} from "~/server/db/schema";
+import { type RecipeListItem } from "~/types";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({
@@ -19,60 +26,88 @@ export const userRouter = createTRPCRouter({
             z.literal("name"),
           ])
           .optional(),
+        withMostLiked: z.boolean().optional(),
       }),
     )
-    .query(async ({ input: { userId, page, perPage, sortBy }, ctx }) => {
-      const createdRecipeListBaseQuery = ctx.db
-        .select({
-          id: recipes.id,
-          name: recipes.name,
-          category: recipes.category,
-          difficultyLevel: recipes.difficultyLevel,
-          cookingTime: recipes.cookingTime,
-          likeCount: count(recipeLikes.id).as("like_count"),
-          reviewCount: count(recipeReviews.id),
-          averageRating:
-            sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
-              "average_rating",
+    .query(
+      async ({
+        input: { userId, page, perPage, sortBy, withMostLiked = false },
+        ctx,
+      }) => {
+        const createdRecipeListBaseQuery = ctx.db
+          .select({
+            id: recipes.id,
+            name: recipes.name,
+            category: recipes.category,
+            difficultyLevel: recipes.difficultyLevel,
+            cookingTime: recipes.cookingTime,
+            likeCount: count(recipeLikes.id).as("like_count"),
+            reviewCount: count(recipeReviews.id),
+            averageRating:
+              sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
+                "average_rating",
+              ),
+            titleImageUrl: recipeImages.url,
+          })
+          .from(recipes)
+          .where(eq(recipes.creatorId, userId ?? ctx.session!.user.id))
+          .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
+          .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
+          .leftJoin(users, eq(recipes.creatorId, users.id))
+          .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
+          .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
+          .leftJoin(
+            recipeImages,
+            and(
+              eq(recipes.id, recipeImages.recipeId),
+              eq(recipeImages.isTitle, true),
             ),
-        })
-        .from(recipes)
-        .where(eq(recipes.creatorId, userId ?? ctx.session!.user.id))
-        .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
-        .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-        .groupBy(recipes.id)
-        .orderBy(desc(recipes.createdAt))
-        .$dynamic();
+          )
+          .groupBy(recipes.id, recipeImages.url)
+          .orderBy(desc(recipes.createdAt))
+          .$dynamic();
 
-      withPagination(createdRecipeListBaseQuery, page, perPage);
-      if (sortBy) withSorting(createdRecipeListBaseQuery, sortBy);
+        withPagination(createdRecipeListBaseQuery, page, perPage);
+        if (sortBy) withSorting(createdRecipeListBaseQuery, sortBy);
 
-      const createdRecipeList = await createdRecipeListBaseQuery;
+        const createdRecipeList =
+          (await createdRecipeListBaseQuery) as RecipeListItem[];
 
-      const [mostLiked] = await ctx.db
-        .select({
-          id: recipes.id,
-          name: recipes.name,
-          category: recipes.category,
-          difficultyLevel: recipes.difficultyLevel,
-          cookingTime: recipes.cookingTime,
-          likeCount: count(recipeLikes.id).as("like_count"),
-          reviewCount: count(recipeReviews.id),
-          averageRating:
-            sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
-              "average_rating",
-            ),
-        })
-        .from(recipes)
-        .where(eq(recipes.creatorId, userId ?? ctx.session!.user.id))
-        .orderBy(sql`like_count desc`)
-        .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
-        .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-        .groupBy(recipes.id)
-        .limit(1);
+        if (withMostLiked) {
+          const [mostLiked] = await ctx.db
+            .select({
+              id: recipes.id,
+              name: recipes.name,
+              category: recipes.category,
+              difficultyLevel: recipes.difficultyLevel,
+              cookingTime: recipes.cookingTime,
+              likeCount: count(recipeLikes.id).as("like_count"),
+              reviewCount: count(recipeReviews.id),
+              averageRating:
+                sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
+                  "average_rating",
+                ),
+              titleImageUrl: recipeImages.url,
+            })
+            .from(recipes)
+            .where(eq(recipes.creatorId, userId ?? ctx.session!.user.id))
+            .orderBy(sql`like_count desc`)
+            .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
+            .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
+            .leftJoin(
+              recipeImages,
+              and(
+                eq(recipes.id, recipeImages.recipeId),
+                eq(recipeImages.isTitle, true),
+              ),
+            )
+            .groupBy(recipes.id, recipeImages.url)
+            .limit(1);
 
-      return { createdRecipeList, mostLiked };
-    }),
+          return { createdRecipeList, mostLiked: mostLiked as RecipeListItem };
+        } else return { createdRecipeList };
+      },
+    ),
 
   getLikedRecipes: protectedProcedure
     .input(
@@ -93,13 +128,21 @@ export const userRouter = createTRPCRouter({
             sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
               "average_rating",
             ),
+          titleImageUrl: recipeImages.url,
         })
         .from(recipes)
         .where(eq(recipeLikes.likedById, userId))
         .leftJoin(users, eq(recipes.creatorId, users.id))
         .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
         .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-        .groupBy(recipes.id)
+        .leftJoin(
+          recipeImages,
+          and(
+            eq(recipes.id, recipeImages.recipeId),
+            eq(recipeImages.isTitle, true),
+          ),
+        )
+        .groupBy(recipes.id, recipeImages.url)
         .orderBy(desc(recipes.createdAt))
         .$dynamic();
 
@@ -107,7 +150,7 @@ export const userRouter = createTRPCRouter({
 
       const likedRecipeList = await likedRecipeListBaseQuery;
 
-      return likedRecipeList;
+      return likedRecipeList as RecipeListItem[];
     }),
 
   getData: publicProcedure

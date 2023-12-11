@@ -1,6 +1,6 @@
 import Link from "next/link";
-import RecipeStats from "~/components/recipes/[id]/RecipeStats";
 import RecipeIngredientList from "~/components/recipes/[id]/ingredient-list";
+import RecipeStats from "~/components/recipes/[id]/recipe-stats";
 import RecipeReviewForm from "~/components/recipes/[id]/review/form";
 import RecipeReviewList from "~/components/recipes/[id]/review/list";
 import RecipeReviewSummary from "~/components/recipes/[id]/review/summary";

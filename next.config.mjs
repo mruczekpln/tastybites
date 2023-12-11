@@ -14,6 +14,7 @@ const config = {
       {
         hostname: "avatars.githubusercontent.com",
       },
+      { hostname: "utfs.io" },
     ],
   },
 };

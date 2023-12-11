@@ -26,6 +26,7 @@ export default function RecipeCard({
     reviewCount,
     averageRating,
     isUserLiking,
+    titleImageUrl,
   },
 }: RecipeCardProps) {
   return (
@@ -101,7 +102,7 @@ export default function RecipeCard({
         </div>
       </div>
       <Image
-        src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJ1cmdlcnxlbnwwfHwwfHx8MA%3D%3D"
+        src={titleImageUrl}
         alt="recipe photo"
         className="h-full w-1/2 object-cover"
         width={1000}
