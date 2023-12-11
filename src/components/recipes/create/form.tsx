@@ -3,18 +3,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import Button from "~/components/ui/button";
 import Input from "~/components/ui/input";
+import { uploadFiles } from "~/lib/uploadthing/helpers";
 import { api } from "~/trpc/react";
 import ImageUpload from "./image-upload";
 import CookingTimeSlider from "./time-slider";
-import { uploadFiles } from "~/lib/uploadthing/helpers";
-import { ChangeEvent, useEffect, useState } from "react";
-import imageCompression from "browser-image-compression";
 
 const formSchema = z.object({
+  images: z
+    .array(z.string())
+    .min(1, { message: "Add at least 1 preview image!" })
+    .max(5, { message: "Add at most 5 images!" })
+    .default([]),
   name: z
     .string()
     .trim()
@@ -68,65 +72,49 @@ export type CreateRecipeFormSchema = z.infer<typeof formSchema>;
 export type FileData = {
   index: string;
   file: File;
-  url: string;
+  localUrl: string;
 };
+
+type UploadState = "idle" | "uploading" | "redirecting" | "error";
 
 export default function CreateRecipeForm() {
   const router = useRouter();
 
   const [files, setFiles] = useState<FileData[]>([] as FileData[]);
-
-  async function onImageSelect(e: ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files || e.target.files.length === 0) return;
-    // setSelectedFile(e.target.files[0]);
-    const file = e.target.files[0]!;
-    if (files.find(({ index }) => index === file.name)) return;
-
-    console.log("originalFile instanceof Blob", file instanceof Blob); // true
-    console.log(`originalFile size ${file.size / 1024 / 1024} MB`);
-
-    const options = {
-      maxSizeMB: files.length === 0 ? 4 : 2,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-
-    try {
-      const compressedFile = await imageCompression(file, options);
-      console.log(
-        "compressedFile instanceof Blob",
-        compressedFile instanceof Blob,
-      );
-
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`,
-      );
-
-      const imageUrl = URL.createObjectURL(compressedFile);
-      setFiles((prev) => [
-        ...prev,
-        { index: file.name, file: compressedFile, url: imageUrl },
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  function onImageDelete(index: string) {
-    URL.revokeObjectURL(files.find((file) => file.index === index)?.url ?? "");
-    setFiles((prev) => prev.filter((file) => index !== file.index));
-  }
-
-  useEffect(() => {
-    return () => files.forEach(({ url }) => URL.revokeObjectURL(url));
-  }, [files]);
+  const [uploadState, setUploadState] = useState<UploadState>("idle");
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CreateRecipeFormSchema>({ resolver: zodResolver(formSchema) });
+
+  const ingredientsTitleRef = useRef<HTMLHeadingElement>(null);
+  const imagesTitleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    // if (files.length > 0)
+    setValue(
+      "images",
+      files.map(({ index }) => index),
+    );
+
+    return () => files.forEach(({ localUrl: url }) => URL.revokeObjectURL(url));
+  }, [files, setValue]);
+
+  useEffect(() => {
+    const scrollProperties = {
+      block: "center",
+    } as ScrollIntoViewOptions;
+
+    if (errors.ingredients)
+      ingredientsTitleRef.current?.scrollIntoView(scrollProperties);
+    if (errors.images) imagesTitleRef.current?.scrollIntoView(scrollProperties);
+
+    console.log(errors);
+  }, [errors]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -135,7 +123,9 @@ export default function CreateRecipeForm() {
 
   const addRecipe = api.recipe.add.useMutation();
 
-  async function addRecipeImages(images: File[], recipeId: number) {
+  async function uploadImages(images: File[], recipeId: number) {
+    setUploadState("uploading");
+
     await uploadFiles("recipeImage", {
       input: { recipeId, isTitle: true },
       files: [images[0]!],
@@ -148,13 +138,17 @@ export default function CreateRecipeForm() {
       files: images.slice(1),
     });
 
-    router.push(`/recipes/${recipeId}`);
+    setUploadState("redirecting");
+
+    setTimeout(() => {
+      router.push(`/recipes/${recipeId}`);
+    }, 500);
   }
 
   const onSubmit: SubmitHandler<CreateRecipeFormSchema> = (data) => {
     addRecipe.mutate(data, {
       onSuccess: ({ id }) => {
-        void addRecipeImages(
+        void uploadImages(
           files.map(({ file }) => file),
           Number(id),
         );
@@ -170,9 +164,9 @@ export default function CreateRecipeForm() {
       <h1 className="mb-4 font-title text-6xl">Add your recipe! </h1>
       <div className="grid w-full grid-flow-row auto-rows-min grid-cols-2 gap-x-16 gap-y-8 border-t-2 border-black pt-8">
         <ImageUpload
-          files={files}
-          onImageSelect={onImageSelect}
-          onImageDelete={onImageDelete}
+          filesState={[files, setFiles]}
+          formErrors={errors}
+          titleRef={imagesTitleRef}
         ></ImageUpload>
         <div>
           <label>
@@ -211,7 +205,7 @@ export default function CreateRecipeForm() {
           </label>
         </div>
         <div className="flex flex-col gap-2">
-          <h2 className="mb-2 text-4xl font-bold">
+          <h2 className="mb-2 text-4xl font-bold" ref={ingredientsTitleRef}>
             Ingredients
             {errors && errors.ingredients && (
               <span className="ml-4 text-lg text-red-400">
@@ -333,7 +327,7 @@ export default function CreateRecipeForm() {
         type="submit"
         className="h-24 w-full bg-yellow-500 text-3xl font-bold duration-300"
       >
-        Submit your recipe!
+        {uploadState === "idle" ? "Submit your recipe!" : uploadState}
       </Button>
     </form>
   );

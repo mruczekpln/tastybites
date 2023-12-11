@@ -40,7 +40,7 @@ export default async function UserAccount({
       </div>
     );
 
-  const createdRecipeList = await api.user.getCreatedRecipes.query({
+  const { createdRecipeList } = await api.user.getCreatedRecipes.query({
     userId: userData.id,
     page,
     perPage,

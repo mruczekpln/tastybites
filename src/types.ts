@@ -9,6 +9,7 @@ export type RecipeListItem = {
   reviewCount: number;
   averageRating: number;
   isUserLiking?: 0 | 1;
+  titleImageUrl: string;
 };
 
 export type ReviewListItem = {

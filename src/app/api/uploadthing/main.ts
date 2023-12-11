@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
-import { type FileRouter, createUploadthing } from "uploadthing/next";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { z } from "zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { recipeImages, recipes, users } from "~/server/db/schema";
+import { recipeImages, users } from "~/server/db/schema";
 
 const f = createUploadthing();
 

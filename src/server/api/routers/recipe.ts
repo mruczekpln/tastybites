@@ -9,7 +9,6 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "~/server/db";
 import { withPagination, withSorting } from "~/server/db/dynamics";
 import {
   recipeImages,
@@ -62,18 +61,14 @@ export const recipeRouter = createTRPCRouter({
         },
         ctx,
       }) => {
-        const recipeListWhere: SQL[] = [];
+        const filters: SQL[] = [];
 
-        if (category !== "all")
-          recipeListWhere.push(eq(recipes.category, category));
-        if (searchQuery)
-          recipeListWhere.push(like(recipes.name, `%${searchQuery}%`));
+        if (category !== "all") filters.push(eq(recipes.category, category));
+        if (searchQuery) filters.push(like(recipes.name, `%${searchQuery}%`));
         if (difficultyLevelsArr.length > 0)
-          recipeListWhere.push(
-            inArray(recipes.difficultyLevel, difficultyLevelsArr),
-          );
+          filters.push(inArray(recipes.difficultyLevel, difficultyLevelsArr));
         if (cookingTimeRangeArr.length > 0) {
-          recipeListWhere.push(
+          filters.push(
             sql.raw(
               `(${cookingTimeRangeArr
                 .map(
@@ -108,13 +103,21 @@ export const recipeRouter = createTRPCRouter({
                   ),
                 }
               : {}),
+            titleImageUrl: recipeImages.url,
           })
           .from(recipes)
-          .where(and(...recipeListWhere))
+          .where(and(...filters))
           .leftJoin(users, eq(recipes.creatorId, users.id))
           .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
           .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-          .groupBy(recipes.id, users.name)
+          .leftJoin(
+            recipeImages,
+            and(
+              eq(recipes.id, recipeImages.recipeId),
+              eq(recipeImages.isTitle, true),
+            ),
+          )
+          .groupBy(recipes.id, users.name, recipeImages.url)
           .$dynamic();
 
         if (ratingsArr.length > 0)
@@ -216,13 +219,6 @@ export const recipeRouter = createTRPCRouter({
             recipeId: Number(insertId),
           })),
         );
-
-        // await tx.insert(recipeImages).values(
-        //   input.images.map((imageLink) => ({
-        //     recipeId: Number(insertId),
-        //     link: imageLink,
-        //   })),
-        // );
 
         return insertId;
       });

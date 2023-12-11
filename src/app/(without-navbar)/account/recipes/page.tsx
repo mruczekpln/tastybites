@@ -17,6 +17,7 @@ export default async function AccountRecipes({
       page,
       perPage,
       sortBy: searchParams.sortBy ?? "likes",
+      withMostLiked: true,
     });
 
   return (
