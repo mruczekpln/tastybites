@@ -19,7 +19,8 @@ import {
   users,
 } from "~/server/db/schema";
 import { type RecipeListItem } from "~/types";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { publicProcedure } from "./../trpc";
 
 export const recipeRouter = createTRPCRouter({
   getPage: publicProcedure
@@ -177,6 +178,21 @@ export const recipeRouter = createTRPCRouter({
         .limit(1);
 
       return recipe;
+    }),
+
+  getImagesById: publicProcedure
+    .input(z.object({ recipeId: z.number() }))
+    .output(z.array(z.object({ url: z.string() })))
+    .query(async ({ input: { recipeId }, ctx }) => {
+      const images = await ctx.db
+        .select({
+          url: recipeImages.url,
+        })
+        .from(recipeImages)
+        .where(eq(recipeImages.recipeId, recipeId))
+        .orderBy(recipeImages.isTitle);
+
+      return images;
     }),
 
   add: protectedProcedure

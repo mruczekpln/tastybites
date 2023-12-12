@@ -17,7 +17,7 @@ export default function RecipeSummary({
   difficultyLevel,
 }: RecipeSummaryProps) {
   return (
-    <div className="flex grow flex-col rounded-xl border-2 border-black bg-yellow-100">
+    <div className="flex w-96 flex-col rounded-xl border-2 border-black bg-yellow-100">
       <div className="h-full border-b-2 border-dashed border-black p-6 pt-5">
         <h3 className=" text-4xl font-bold">Description</h3>
         <p className="h-16 text-lg">{description}</p>

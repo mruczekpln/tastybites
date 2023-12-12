@@ -30,9 +30,7 @@ export default function RecipeCard({
   },
 }: RecipeCardProps) {
   return (
-    <Link
-      href={`/recipes/${id}`}
-      prefetch={false}
+    <div
       className={`flex ${
         higher ? "h-64" : "h-48"
       } cursor-pointer overflow-hidden rounded-lg border-2 border-black bg-white duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:shadow-button`}
@@ -40,7 +38,13 @@ export default function RecipeCard({
       <div className="flex h-full w-1/2 flex-col justify-between border-r-2 border-black p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-3xl leading-none">{name}</h2>
+            <Link
+              href={`/recipes/${id}`}
+              prefetch={false}
+              className="text-3xl leading-none"
+            >
+              {name}
+            </Link>
             {reviewCount > 0 ? (
               <div className="mt-2 flex gap-[2px]">
                 {Array.from({ length: 5 }, (_, starIndex) => (
@@ -108,6 +112,6 @@ export default function RecipeCard({
         width={1000}
         height={666}
       ></Image>
-    </Link>
+    </div>
   );
 }
