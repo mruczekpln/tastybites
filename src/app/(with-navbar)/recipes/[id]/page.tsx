@@ -19,13 +19,15 @@ export default async function Recipe({
   searchParams: PaginationSearchParams;
 }) {
   const session = await getServerAuthSession();
+  const recipeId = Number(params.id);
+
   const recipeData = await api.recipe.getById.query({
-    recipeId: Number(params.id),
-    userId: session?.user.id,
+    recipeId,
+    userId: session?.user?.id,
   });
 
   const reviewList = await api.recipe.getReviewPage.query({
-    recipeId: Number(params.id),
+    recipeId,
     page: Number(searchParams.page ?? 1),
     perPage: Number(searchParams.perPage ?? 10),
   });
@@ -69,7 +71,7 @@ export default async function Recipe({
         </div>
 
         <div className="flex h-[512px] w-full gap-4">
-          <RecipeShowcase></RecipeShowcase>
+          <RecipeShowcase recipeId={recipeId}></RecipeShowcase>
           <RecipeSummary
             reviews={{
               reviewCount: reviewList.length,

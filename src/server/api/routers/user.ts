@@ -54,8 +54,6 @@ export const userRouter = createTRPCRouter({
           .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
           .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
           .leftJoin(users, eq(recipes.creatorId, users.id))
-          .leftJoin(recipeReviews, eq(recipes.id, recipeReviews.recipeId))
-          .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
           .leftJoin(
             recipeImages,
             and(
