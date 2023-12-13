@@ -4,6 +4,7 @@ import { Space_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
 
+import AuthSessionProvider from "~/components/auth-session-provider";
 import { TRPCReactProvider } from "~/trpc/react";
 
 const space_grotesk = Space_Grotesk({
@@ -32,9 +33,11 @@ export default function RootLayout({
       <body
         className={`min-h-screen w-screen overflow-x-hidden font-sans ${space_grotesk.variable} ${titleFont.variable}`}
       >
-        <TRPCReactProvider cookies={cookies().toString()}>
-          {children}
-        </TRPCReactProvider>
+        <AuthSessionProvider>
+          <TRPCReactProvider cookies={cookies().toString()}>
+            {children}
+          </TRPCReactProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );
