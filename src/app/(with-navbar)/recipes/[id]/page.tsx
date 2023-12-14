@@ -1,4 +1,4 @@
-import Link from "next/link";
+import EditAndDelete from "~/components/recipes/[id]/edit-and-delete";
 import RecipeIngredientList from "~/components/recipes/[id]/ingredient-list";
 import RecipeStats from "~/components/recipes/[id]/recipe-stats";
 import RecipeReviewForm from "~/components/recipes/[id]/review/form";
@@ -51,16 +51,12 @@ export default async function Recipe({
           ]}
         ></RouteDisplay>
         <h1 className="mt-8 font-title text-6xl">{recipeData?.name}</h1>
-        <div className="flex w-full justify-between">
-          <h2 className="mb-4 mt-2 text-2xl">
-            <b>by: </b>
-            <Link
-              className="hover:underline"
-              href={`/account/${recipeData?.username}`}
-            >
-              {recipeData?.username}
-            </Link>
-          </h2>
+        <div className="flex h-20 w-full justify-between">
+          {session?.user.id === recipeData?.ownerId ? (
+            <EditAndDelete recipeId={recipeId}></EditAndDelete>
+          ) : (
+            <h2 className="mb-4 mt-2 text-2xl">{recipeData?.username}</h2>
+          )}
           <RecipeStats
             isLoggedIn={!!session}
             likeCount={Number(recipeData?.like_count)}

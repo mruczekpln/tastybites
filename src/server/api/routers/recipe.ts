@@ -19,6 +19,7 @@ import {
   recipes,
   users,
 } from "~/server/db/schema";
+import { utapi } from "~/server/uploadthing";
 import { type RecipeListItem } from "~/types";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { publicProcedure } from "./../trpc";
@@ -167,14 +168,15 @@ export const recipeRouter = createTRPCRouter({
         .where(eq(recipes.id, recipeId))
         .groupBy(
           recipes.id,
-          recipes.instructions,
-          recipes.creatorId,
-          recipes.name,
-          recipes.description,
-          recipes.category,
-          recipes.cookingTime,
-          recipes.difficultyLevel,
-          recipes.createdAt,
+          users.name,
+          // recipes.instructions,
+          // recipes.creatorId,
+          // recipes.name,
+          // recipes.description,
+          // recipes.category,
+          // recipes.cookingTime,
+          // recipes.difficultyLevel,
+          // recipes.createdAt,
         )
         .limit(1);
 
@@ -219,6 +221,7 @@ export const recipeRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const insertId = await ctx.db.transaction(async (tx) => {
+        console.log(input);
         const { insertId } = await tx.insert(recipes).values({
           creatorId: ctx.session.user.id,
           name: input.name,
@@ -247,7 +250,6 @@ export const recipeRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ recipeId: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      // check if user is the owner
       const [recipe] = await ctx.db
         .select({ creatorId: recipes.creatorId })
         .from(recipes)
@@ -257,6 +259,33 @@ export const recipeRouter = createTRPCRouter({
       if (recipe?.creatorId !== ctx.session.user.id) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
+
+      await ctx.db.transaction(async (tx) => {
+        const images = await tx
+          .select({ key: recipeImages.key })
+          .from(recipeImages)
+          .where(eq(recipeImages.recipeId, input.recipeId));
+
+        await utapi.deleteFiles(images.map(({ key }) => key));
+
+        await tx
+          .delete(recipeImages)
+          .where(eq(recipeImages.recipeId, input.recipeId));
+
+        await tx
+          .delete(recipeIngredients)
+          .where(eq(recipeIngredients.recipeId, input.recipeId));
+
+        await tx
+          .delete(recipeReviews)
+          .where(eq(recipeReviews.recipeId, input.recipeId));
+
+        await tx
+          .delete(recipeLikes)
+          .where(eq(recipeLikes.recipeId, input.recipeId));
+
+        await tx.delete(recipes).where(eq(recipes.id, input.recipeId));
+      });
     }),
 
   handleLikeRecipe: protectedProcedure
