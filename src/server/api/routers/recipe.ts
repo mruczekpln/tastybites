@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import {
   and,
   count,
@@ -182,7 +183,6 @@ export const recipeRouter = createTRPCRouter({
 
   getImagesById: publicProcedure
     .input(z.object({ recipeId: z.number() }))
-    .output(z.array(z.object({ url: z.string() })))
     .query(async ({ input: { recipeId }, ctx }) => {
       const images = await ctx.db
         .select({
@@ -244,7 +244,20 @@ export const recipeRouter = createTRPCRouter({
 
   // edit: protectedProcedure
 
-  // delete: protectedProcedure
+  delete: protectedProcedure
+    .input(z.object({ recipeId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      // check if user is the owner
+      const [recipe] = await ctx.db
+        .select({ creatorId: recipes.creatorId })
+        .from(recipes)
+        .where(eq(recipes.id, input.recipeId))
+        .limit(1);
+
+      if (recipe?.creatorId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+    }),
 
   handleLikeRecipe: protectedProcedure
     .input(

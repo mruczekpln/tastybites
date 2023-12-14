@@ -100,7 +100,7 @@ export default function Navbar() {
           </NavigationMenu.List>
 
           <div className="absolute left-0 top-[74px] !-z-10 w-full">
-            <NavigationMenu.Viewport className="data-[state=open]:animate-scaleIn data-[state=closed]:animate-scaleOut absolute left-0 top-0 -z-10 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden rounded-[6px] transition-[width,_height] duration-300" />
+            <NavigationMenu.Viewport className="absolute left-0 top-0 -z-10 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden rounded-[6px] transition-[width,_height] duration-300 data-[state=closed]:animate-scaleOut data-[state=open]:animate-scaleIn" />
           </div>
         </NavigationMenu.Root>
       </nav>
