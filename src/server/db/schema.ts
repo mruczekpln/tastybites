@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   bigint,
   boolean,
@@ -20,7 +19,9 @@ export const mysqlTable = mysqlTableCreator((name) => `tastybites_${name}`);
 export const accounts = mysqlTable(
   "account",
   {
-    userId: varchar("userId", { length: 255 }).notNull(),
+    userId: varchar("userId", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 })
       .$type<AdapterAccount["type"]>()
       .notNull(),
@@ -35,13 +36,15 @@ export const accounts = mysqlTable(
     session_state: varchar("session_state", { length: 255 }),
   },
   (account) => ({
-    compoundKey: primaryKey(account.provider, account.providerAccountId),
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
   }),
 );
 
-export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, { fields: [accounts.userId], references: [users.id] }),
-}));
+// export const accountsRelations = relations(accounts, ({ one }) => ({
+//   user: one(users, { fields: [accounts.userId], references: [users.id] }),
+// }));
 
 export const verificationTokens = mysqlTable(
   "verification_token",
@@ -51,7 +54,9 @@ export const verificationTokens = mysqlTable(
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (vt) => ({
-    compoundKey: primaryKey(vt.identifier, vt.token),
+    coupoundKey: primaryKey({
+      columns: [vt.identifier, vt.token],
+    }),
   }),
 );
 
@@ -71,18 +76,22 @@ export const users = mysqlTable(
   }),
 );
 
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-  recipes: many(recipes),
-  recipeLikes: many(recipeLikes),
-  recipeReviews: many(recipeReviews),
-}));
+// export const usersRelations = relations(users, ({ many }) => ({
+//   accounts: many(accounts),
+//   recipes: many(recipes),
+//   recipeLikes: many(recipeLikes),
+//   recipeReviews: many(recipeReviews),
+// }));
 
 export const recipes = mysqlTable(
   "recipe",
   {
     id: serial("id").primaryKey(),
-    creatorId: varchar("creator_id", { length: 36 }).notNull(),
+    creatorId: varchar("creator_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
     name: varchar("name", { length: 100 }).notNull(),
     description: text("description").notNull(),
     instructions: text("instructions").notNull(),
@@ -93,7 +102,6 @@ export const recipes = mysqlTable(
       "intermediate",
       "advanced",
     ]).notNull(),
-    // titleImageUrl: varchar("title_image_url", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
@@ -102,35 +110,51 @@ export const recipes = mysqlTable(
   }),
 );
 
-export const recipesRelations = relations(recipes, ({ one, many }) => ({
-  users: one(users, { fields: [recipes.creatorId], references: [users.id] }),
-  recipeImages: many(recipeImages),
-  recipeIngredients: many(recipeIngredients),
-  recipeLikes: many(recipeLikes),
-  recipeReviews: many(recipeReviews),
-}));
+// export const recipesRelations = relations(recipes, ({ one, many }) => ({
+//   users: one(users, { fields: [recipes.creatorId], references: [users.id] }),
+//   recipeImages: many(recipeImages),
+//   recipeIngredients: many(recipeIngredients),
+//   recipeLikes: many(recipeLikes),
+//   recipeReviews: many(recipeReviews),
+// }));
 
 export const recipeImages = mysqlTable("recipe_image", {
   id: serial("id").primaryKey(),
-  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true })
+    .notNull()
+    .references(() => recipes.id, {
+      onDelete: "cascade",
+    }),
   isTitle: boolean("is_title").$default(() => false),
   url: varchar("url", { length: 255 }).notNull(),
 });
 
-export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
-  recipe: one(recipes, {
-    fields: [recipeImages.recipeId],
-    references: [recipes.id],
-  }),
-}));
+// export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
+//   recipe: one(recipes, {
+//     fields: [recipeImages.recipeId],
+//     references: [recipes.id],
+//   }),
+// }));
 
 export const recipeLikes = mysqlTable(
   "recipe_like",
   {
     id: serial("id").primaryKey(),
-    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
-    creatorId: varchar("creator_id", { length: 36 }).notNull(),
-    likedById: varchar("liked_by_id", { length: 36 }).notNull(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => recipes.id, {
+        onDelete: "cascade",
+      }),
+    creatorId: varchar("creator_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
+    likedById: varchar("liked_by_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
@@ -140,38 +164,50 @@ export const recipeLikes = mysqlTable(
   }),
 );
 
-export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
-  user: one(users, { fields: [recipeLikes.likedById], references: [users.id] }),
-  recipe: one(recipes, {
-    fields: [recipeLikes.recipeId],
-    references: [recipes.id],
-  }),
-}));
+// export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
+//   user: one(users, { fields: [recipeLikes.likedById], references: [users.id] }),
+//   recipe: one(recipes, {
+//     fields: [recipeLikes.recipeId],
+//     references: [recipes.id],
+//   }),
+// }));
 
 export const recipeIngredients = mysqlTable("recipe_ingredient", {
   id: serial("id").primaryKey(),
-  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true })
+    .notNull()
+    .references(() => recipes.id, {
+      onDelete: "cascade",
+    }),
   name: varchar("name", { length: 50 }).notNull(),
   amount: smallint("amount").notNull(),
   unit: mysqlEnum("unit", ["g", "ml", "pcs"]),
 });
 
-export const recipeIngredientsRelations = relations(
-  recipeIngredients,
-  ({ one }) => ({
-    recipe: one(recipes, {
-      fields: [recipeIngredients.recipeId],
-      references: [recipes.id],
-    }),
-  }),
-);
+// export const recipeIngredientsRelations = relations(
+//   recipeIngredients,
+//   ({ one }) => ({
+//     recipe: one(recipes, {
+//       fields: [recipeIngredients.recipeId],
+//       references: [recipes.id],
+//     }),
+//   }),
+// );
 
 export const recipeReviews = mysqlTable(
   "recipe_review",
   {
     id: serial("id").primaryKey(),
-    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
-    userId: varchar("user_id", { length: 36 }).notNull(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => recipes.id, {
+        onDelete: "cascade",
+      }),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+      }),
     rating: tinyint("rating").notNull(),
     content: text("content").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -181,10 +217,10 @@ export const recipeReviews = mysqlTable(
   }),
 );
 
-export const recipeReviewsRelations = relations(recipeReviews, ({ one }) => ({
-  users: one(users, { fields: [recipeReviews.userId], references: [users.id] }),
-  recipe: one(recipes, {
-    fields: [recipeReviews.recipeId],
-    references: [recipes.id],
-  }),
-}));
+// export const recipeReviewsRelations = relations(recipeReviews, ({ one }) => ({
+//   users: one(users, { fields: [recipeReviews.userId], references: [users.id] }),
+//   recipe: one(recipes, {
+//     fields: [recipeReviews.recipeId],
+//     references: [recipes.id],
+//   }),
+// }));
