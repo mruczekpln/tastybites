@@ -45,17 +45,17 @@ export const tastybitesFileRouter = {
 
       return { recipeId, isTitle };
     })
-    .onUploadComplete(async ({ file, metadata: { recipeId, isTitle } }) => {
-      console.log(`uploaded with recipeid = ${recipeId}`);
+    .onUploadComplete(
+      async ({ file: { url, key }, metadata: { recipeId, isTitle } }) => {
+        console.log(`uploaded with recipeid = ${recipeId}`);
 
-      await db
-        .insert(recipeImages)
-        .values({ recipeId, url: file.url, isTitle });
-      // else
-      //   await db
-      //     .update(recipes)
-      //     .where(eq(recipes.id, recipeId));
-    }),
+        await db.insert(recipeImages).values({ recipeId, url, key, isTitle });
+        // else
+        //   await db
+        //     .update(recipes)
+        //     .where(eq(recipes.id, recipeId));
+      },
+    ),
 } satisfies FileRouter;
 
 export type TastybitesFileRouter = typeof tastybitesFileRouter;

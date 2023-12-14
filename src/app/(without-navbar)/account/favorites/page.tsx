@@ -22,23 +22,26 @@ export default async function AccountFavorites({
   return (
     <div className="w-full max-w-screen-2xl">
       <h2 className="text-5xl font-bold">Saved recipes</h2>
-      <h2 className="mt-4 text-2xl">Total: 12</h2>
       <hr className="my-4" />
-      <div className="flex w-full flex-col gap-4">
-        {likedRecipeList.slice(0, perPage).map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            data={recipe}
-            showCategory
-            hideLikes
-            higher
-          ></RecipeCard>
-        ))}
+      {likedRecipeList.length > 0 ? (
+        <div className="flex w-full flex-col gap-4">
+          {likedRecipeList.slice(0, perPage).map((recipe) => (
+            <RecipeCard
+              key={recipe.id}
+              data={recipe}
+              showCategory
+              hideLikes
+              higher
+            ></RecipeCard>
+          ))}
 
-        {(likedRecipeList.length === perPage + 1 || page > 1) && (
-          <Pagination totalRecipes={likedRecipeList.length}></Pagination>
-        )}
-      </div>
+          {(likedRecipeList.length === perPage + 1 || page > 1) && (
+            <Pagination totalRecipes={likedRecipeList.length}></Pagination>
+          )}
+        </div>
+      ) : (
+        <p className="mt-4 text-2xl">You have no liked recipes</p>
+      )}
     </div>
   );
 }

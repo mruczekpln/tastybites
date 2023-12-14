@@ -95,11 +95,11 @@ export default function CreateRecipeForm() {
   const imagesTitleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    // if (files.length > 0)
-    setValue(
-      "images",
-      files.map(({ index }) => index),
-    );
+    if (files.length > 0)
+      setValue(
+        "images",
+        files.map(({ index }) => index),
+      );
 
     return () => files.forEach(({ localUrl: url }) => URL.revokeObjectURL(url));
   }, [files, setValue]);

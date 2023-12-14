@@ -74,7 +74,7 @@ export default function AccountSidebar() {
       <p className="ml-8 font-bold text-gray-100/50">Recipes</p>
       <SidebarLink
         pathname={pathname}
-        href="/account/recipes?sortBy=latest"
+        href="/account/recipes"
         icon={Library}
         text="Your Recipes"
       ></SidebarLink>
@@ -101,13 +101,6 @@ export default function AccountSidebar() {
         <LogOut size={32} className="stroke-yellow-700"></LogOut>
         <p className={'text-yellow-50"} text-xl'}>Log Out</p>
       </button>
-      {/* <Link
-        href="/"
-        className="flex items-center gap-4 rounded-lg bg-red-400 p-4"
-      >
-        <UserX className="inline stroke-white" size={32} className="stroke-yellow-700"></UserX>
-        <a className="text-xl font-bold text-white">Delete account</a>
-      </Link> */}
     </aside>
   );
 }

@@ -17,8 +17,8 @@ async function getUserOverwiev(userId: string) {
       postedRecipes: count(recipes.id),
     })
     .from(users)
-    .leftJoin(recipeLikes, eq(users.id, recipeLikes.likedById))
-    .leftJoin(recipes, eq(recipeLikes.recipeId, recipes.id))
+    .leftJoin(recipeLikes, eq(recipeLikes.likedById, users.id))
+    .leftJoin(recipes, eq(recipes.creatorId, users.id))
     .where(eq(users.id, userId))
     // .where(and(eq(users.id, userId), eq(recipeLikes.likedById, userId)));
     .limit(1);
