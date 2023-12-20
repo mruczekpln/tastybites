@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import RedirectForm from "~/components/landing/redirect-form";
 import NavLink from "~/components/link";
+import RecommendationList from "~/components/recommendation-list";
 
 // export const dynamic = "force-static";
 
@@ -119,12 +120,6 @@ function PoweredBy() {
   );
 }
 
-function FeaturedRecipeCard() {
-  return (
-    <section className="h-[200px] items-center justify-center rounded-2xl border-2 border-black bg-white shadow-button duration-300 hover:shadow-none"></section>
-  );
-}
-
 function Featured() {
   return (
     <div
@@ -168,9 +163,7 @@ function Featured() {
               </Link>
             </div>
             <article className="flex flex-col gap-6">
-              {new Array(3).fill("").map((_, i) => (
-                <FeaturedRecipeCard key={i}></FeaturedRecipeCard>
-              ))}
+              <RecommendationList type="liked" />
             </article>
           </div>
           <div className="w-full">
@@ -183,16 +176,14 @@ function Featured() {
                 className="rotate-90"
               ></Image>
               <h2 className="whitespace-nowrap text-xl font-bold ">
-                Top deserts
+                Latest recipes
               </h2>
               <Link href="/" className="text-sm hover:underline">
                 see more
               </Link>
             </div>
             <article className="flex flex-col gap-6">
-              {new Array(3).fill("").map((_, i) => (
-                <FeaturedRecipeCard key={i}></FeaturedRecipeCard>
-              ))}
+              <RecommendationList type="latest" />
             </article>
           </div>
         </section>

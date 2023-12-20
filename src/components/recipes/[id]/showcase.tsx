@@ -8,9 +8,17 @@ type RecipeShowcaseProps = { recipeId: number };
 export default function RecipeShowcase({ recipeId }: RecipeShowcaseProps) {
   const [activeImage, setActiveImage] = useState<number>(0);
 
-  const { data: images, isSuccess } = api.recipe.getImagesById.useQuery({
-    recipeId,
-  });
+  const { data: images, isSuccess } = api.recipe.getImagesById.useQuery(
+    {
+      recipeId,
+    },
+    {
+      retry: false,
+      staleTime: Infinity,
+    },
+  );
+
+  console.log(isSuccess && images);
 
   return (
     <div className="flex h-full w-full justify-between gap-4">

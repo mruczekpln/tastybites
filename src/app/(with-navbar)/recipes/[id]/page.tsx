@@ -7,6 +7,7 @@ import RecipeReviewSummary from "~/components/recipes/[id]/review/summary";
 import RecipeShowcase from "~/components/recipes/[id]/showcase";
 import RecipeSummary from "~/components/recipes/[id]/summary";
 import RouteDisplay from "~/components/recipes/path-display";
+import RecommendationList from "~/components/recommendation-list";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { type PaginationSearchParams } from "~/types/recipe";
@@ -112,9 +113,7 @@ export default async function Recipe({
 
           <div className="flex w-1/3 flex-col gap-4">
             <h2 className="mb-2 text-4xl font-bold">You might also like:</h2>
-            <div className="h-48 w-full rounded-xl border-2 border-black shadow-button"></div>
-            <div className="h-48 w-full rounded-xl border-2 border-black shadow-button"></div>
-            <div className="h-48 w-full rounded-xl border-2 border-black shadow-button"></div>
+            <RecommendationList type="liked"></RecommendationList>
           </div>
         </div>
       </main>
