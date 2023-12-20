@@ -27,11 +27,16 @@ export default withUt({
           from: { transform: "translateY(0)" },
           to: { transform: "translateY(-420px)" },
         },
+        spin: {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
     },
     animation: {
       scaleIn: "scaleIn 500ms ease",
       scaleOut: "scaleOut 500ms ease",
+      spin: "spin 1s linear infinite",
     },
   },
   plugins: [
