@@ -68,16 +68,10 @@ export default async function UserAccount({
         </div>
         <div className="flex items-center gap-8">
           <OverviewCard className="flex items-center justify-between gap-4">
-            {/* <h2 className="whitespace-nowrap text-3xl font-bold">
-              Posted recipes
-            </h2> */}
             <ChefHat size={48}></ChefHat>
             <p className="w-1/3 text-right text-2xl">{createdRecipesCount}</p>
           </OverviewCard>
           <OverviewCard className="flex items-center justify-between gap-4">
-            {/* <h2 className="whitespace-nowrap text-3xl font-bold">
-              Total likes
-            </h2> */}
             <Heart size={48}></Heart>
             <p className="w-1/3 text-right text-2xl">
               {createdRecipesLikesCount}
