@@ -121,12 +121,11 @@ export const recipesRelations = relations(recipes, ({ one, many }) => ({
 export const recipeImages = mysqlTable("recipe_image", {
   id: serial("id").primaryKey(),
   recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
-  // .references(() => recipes.id, {
-  //   onDelete: "cascade",
-  // }),
   key: varchar("key", { length: 255 }).notNull(),
   url: varchar("url", { length: 255 }).notNull(),
   isTitle: boolean("is_title").$default(() => false),
+  order: smallint("order").notNull(),
+  // uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
 });
 
 export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({

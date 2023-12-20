@@ -1,7 +1,10 @@
 import shortenCookingTimeRanges from "~/lib/utils/shorten-cooking-time-ranges";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import { type RecipeCategory, type RecipeListSearchParams } from "~/types";
+import {
+  type RecipeCategory,
+  type RecipeListSearchParams,
+} from "~/types/recipe";
 import Pagination from "../pagination";
 import RecipeCard from "../recipe-card";
 import Filters from "./filters";
@@ -40,6 +43,8 @@ export default async function CategoryRecipeList({
       ratingsArr: searchParams.ratings ? searchParams.ratings.split(",") : [],
     },
   });
+
+  console.log(recipeList);
 
   return (
     <div className="mb-12 mt-8 flex w-full max-w-screen-2xl gap-12">

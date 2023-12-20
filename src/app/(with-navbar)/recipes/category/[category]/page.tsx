@@ -4,7 +4,10 @@ import SearchBar from "~/components/recipes/category/search-bar";
 import SortBy from "~/components/recipes/category/sort-by";
 import RouteDisplay from "~/components/recipes/path-display";
 import { CATEGORIES } from "~/lib/constants";
-import { type RecipeCategory, type RecipeListSearchParams } from "~/types";
+import {
+  type RecipeCategory,
+  type RecipeListSearchParams,
+} from "~/types/recipe";
 export default function Category({
   params,
   searchParams,

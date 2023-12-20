@@ -28,13 +28,15 @@ export default async function RecipeIngredientList({
         {ingredientsData.map((ingredient, index) => (
           <div
             key={index}
-            className="rounded-lg border-2 border-black bg-gray-200 py-4 pl-8 shadow-button"
+            className="flex items-center justify-center rounded-lg border-2 border-black bg-gray-200 p-4 shadow-button"
           >
-            <b>
-              {ingredient.amount}
-              {ingredient.unit}
-            </b>{" "}
-            - {ingredient.name}
+            <p>
+              <b>
+                {ingredient.amount}
+                {ingredient.unit}
+              </b>{" "}
+              - {ingredient.name}
+            </p>
           </div>
         ))}
       </div>

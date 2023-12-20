@@ -9,7 +9,7 @@ import RecipeSummary from "~/components/recipes/[id]/summary";
 import RouteDisplay from "~/components/recipes/path-display";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import { type PaginationSearchParams } from "~/types";
+import { type PaginationSearchParams } from "~/types/recipe";
 
 export default async function Recipe({
   params,
