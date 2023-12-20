@@ -3,6 +3,7 @@ import {
   and,
   count,
   countDistinct,
+  desc,
   eq,
   inArray,
   like,
@@ -138,6 +139,54 @@ export const recipeRouter = createTRPCRouter({
       },
     ),
 
+  getById: publicProcedure
+    .input(z.object({ recipeId: z.number(), userId: z.string().optional() }))
+    .query(async ({ input: { recipeId, userId }, ctx }) => {
+      const [recipe] = await ctx.db
+        .select({
+          id: recipes.id,
+          instructions: recipes.instructions,
+          name: recipes.name,
+          description: recipes.description,
+          category: recipes.category,
+          cookingTime: recipes.cookingTime,
+          difficultyLevel: recipes.difficultyLevel,
+          createdAt: recipes.createdAt,
+          ownerId: recipes.creatorId,
+          username: users.name,
+          like_count: count(recipeLikes.id),
+          ...(userId
+            ? {
+                isUserLiking: sql.raw(
+                  `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
+                ),
+              }
+            : {}),
+        })
+        .from(recipes)
+        .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
+        .leftJoin(users, eq(recipes.creatorId, users.id))
+        .where(eq(recipes.id, recipeId))
+        .groupBy(recipes.id, users.name)
+        .limit(1);
+
+      return recipe;
+    }),
+
+  getImagesById: publicProcedure
+    .input(z.object({ recipeId: z.number() }))
+    .query(async ({ input: { recipeId }, ctx }) => {
+      const images = await ctx.db
+        .select({
+          url: recipeImages.url,
+        })
+        .from(recipeImages)
+        .where(eq(recipeImages.recipeId, recipeId))
+        .orderBy(recipeImages.order);
+
+      return images;
+    }),
+
   getByIdToEdit: protectedProcedure
     .input(z.object({ recipeId: z.number() }))
     .query(async ({ input: { recipeId }, ctx }) => {
@@ -189,54 +238,6 @@ export const recipeRouter = createTRPCRouter({
         .where(eq(recipeIngredients.recipeId, recipeId));
 
       return { recipeData, imageData, ingredientData };
-    }),
-
-  getById: publicProcedure
-    .input(z.object({ recipeId: z.number(), userId: z.string().optional() }))
-    .query(async ({ input: { recipeId, userId }, ctx }) => {
-      const [recipe] = await ctx.db
-        .select({
-          id: recipes.id,
-          instructions: recipes.instructions,
-          name: recipes.name,
-          description: recipes.description,
-          category: recipes.category,
-          cookingTime: recipes.cookingTime,
-          difficultyLevel: recipes.difficultyLevel,
-          createdAt: recipes.createdAt,
-          ownerId: recipes.creatorId,
-          username: users.name,
-          like_count: count(recipeLikes.id),
-          ...(userId
-            ? {
-                isUserLiking: sql.raw(
-                  `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
-                ),
-              }
-            : {}),
-        })
-        .from(recipes)
-        .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
-        .leftJoin(users, eq(recipes.creatorId, users.id))
-        .where(eq(recipes.id, recipeId))
-        .groupBy(recipes.id, users.name)
-        .limit(1);
-
-      return recipe;
-    }),
-
-  getImagesById: publicProcedure
-    .input(z.object({ recipeId: z.number() }))
-    .query(async ({ input: { recipeId }, ctx }) => {
-      const images = await ctx.db
-        .select({
-          url: recipeImages.url,
-        })
-        .from(recipeImages)
-        .where(eq(recipeImages.recipeId, recipeId))
-        .orderBy(recipeImages.order);
-
-      return images;
     }),
 
   add: protectedProcedure
@@ -526,5 +527,44 @@ export const recipeRouter = createTRPCRouter({
             .delete(recipeReviews)
             .where(eq(recipeReviews.id, input.reviewId));
         });
+    }),
+
+  getRecommendations: publicProcedure
+    .input(
+      z.object({ type: z.union([z.literal("latest"), z.literal("liked")]) }),
+    )
+    .query(async ({ input: { type }, ctx }) => {
+      const recipeRecommendationsBaseQuery = ctx.db
+        .select({
+          id: recipes.id,
+          username: users.name,
+          name: recipes.name,
+          likeCount: countDistinct(recipeLikes.id).as("like_count"),
+          titleImageUrl: recipeImages.url,
+        })
+        .from(recipes)
+        .leftJoin(users, eq(recipes.creatorId, users.id))
+        .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
+        .leftJoin(
+          recipeImages,
+          and(
+            eq(recipes.id, recipeImages.recipeId),
+            eq(recipeImages.isTitle, true),
+          ),
+        )
+        .groupBy(recipes.id, users.name, recipeImages.url)
+        .$dynamic();
+
+      if (type === "latest") {
+        void recipeRecommendationsBaseQuery.orderBy(desc(recipes.createdAt));
+      } else {
+        void recipeRecommendationsBaseQuery.orderBy(sql`like_count desc`);
+      }
+
+      void recipeRecommendationsBaseQuery.limit(3);
+
+      const recipeRecommendations = await recipeRecommendationsBaseQuery;
+
+      return recipeRecommendations;
     }),
 });

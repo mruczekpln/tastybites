@@ -68,7 +68,7 @@ export default function EditAndDelete({ recipeId }: EditAndDeleteProps) {
         </Button>
       </Link>
       <AlertDialog.Root>
-        <AlertDialog.Trigger>
+        <AlertDialog.Trigger asChild>
           <Button variant="ghost">
             <Trash2 className="stroke-red-500"></Trash2>
           </Button>
