@@ -2,6 +2,7 @@
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 import { Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "~/components/ui/button";
 import { api } from "~/trpc/react";
@@ -61,9 +62,11 @@ export default function EditAndDelete({ recipeId }: EditAndDeleteProps) {
   return (
     <div className="flex items-center gap-2">
       <p>manage your recipe: </p>
-      <Button variant="ghost">
-        <Pencil></Pencil>
-      </Button>
+      <Link href={`/recipes/edit?recipeId=${recipeId}`}>
+        <Button variant="ghost">
+          <Pencil></Pencil>
+        </Button>
+      </Link>
       <AlertDialog.Root>
         <AlertDialog.Trigger>
           <Button variant="ghost">

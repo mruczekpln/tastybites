@@ -2,7 +2,10 @@ import SortBy from "~/components/recipes/category/sort-by";
 import Pagination from "~/components/recipes/pagination";
 import RecipeCard from "~/components/recipes/recipe-card";
 import { api } from "~/trpc/server";
-import { type RecipeListSearchParams, type SortBy as TSortBy } from "~/types";
+import {
+  type RecipeListSearchParams,
+  type SortBy as TSortBy,
+} from "~/types/recipe";
 
 export default async function AccountRecipes({
   searchParams,

@@ -8,7 +8,7 @@ import {
   recipes,
   users,
 } from "~/server/db/schema";
-import { type RecipeListItem } from "~/types";
+import { type RecipeListItem } from "~/types/recipe";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const userRouter = createTRPCRouter({

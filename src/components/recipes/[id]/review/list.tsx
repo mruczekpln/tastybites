@@ -1,4 +1,7 @@
-import { type PaginationSearchParams, type ReviewListItem } from "~/types";
+import {
+  type PaginationSearchParams,
+  type ReviewListItem,
+} from "~/types/recipe";
 import Pagination from "../../pagination";
 import RecipeReview from "./review";
 type RecipeReviewListProps = {

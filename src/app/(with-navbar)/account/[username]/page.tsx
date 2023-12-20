@@ -4,7 +4,7 @@ import OverviewCard from "~/components/account/overview-card";
 import Pagination from "~/components/recipes/pagination";
 import RecipeCard from "~/components/recipes/recipe-card";
 import { api } from "~/trpc/server";
-import { type PaginationSearchParams } from "~/types";
+import { type PaginationSearchParams } from "~/types/recipe";
 
 export default async function UserAccount({
   params,

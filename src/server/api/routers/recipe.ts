@@ -20,7 +20,7 @@ import {
   users,
 } from "~/server/db/schema";
 import { utapi } from "~/server/uploadthing";
-import { type RecipeListItem } from "~/types";
+import { type RecipeListItem } from "~/types/recipe";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { publicProcedure } from "./../trpc";
 
@@ -138,6 +138,59 @@ export const recipeRouter = createTRPCRouter({
       },
     ),
 
+  getByIdToEdit: protectedProcedure
+    .input(z.object({ recipeId: z.number() }))
+    .query(async ({ input: { recipeId }, ctx }) => {
+      const [recipe] = await ctx.db
+        .select({ creatorId: recipes.creatorId })
+        .from(recipes)
+        .where(eq(recipes.id, recipeId))
+        .limit(1);
+
+      if (recipe?.creatorId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const [recipeData] = await ctx.db
+        .select({
+          id: recipes.id,
+          name: recipes.name,
+          description: recipes.description,
+          category: recipes.category,
+          cookingTime: recipes.cookingTime,
+          difficultyLevel: recipes.difficultyLevel,
+          instructions: recipes.instructions,
+        })
+        .from(recipes)
+        .where(
+          and(
+            eq(recipes.id, recipeId),
+            eq(recipes.creatorId, ctx.session.user.id),
+          ),
+        )
+        .limit(1);
+
+      const imageData = await ctx.db
+        .select({
+          key: recipeImages.key,
+          url: recipeImages.url,
+        })
+        .from(recipeImages)
+        .where(eq(recipeImages.recipeId, recipeId))
+        .orderBy(recipeImages.order);
+
+      const ingredientData = await ctx.db
+        .select({
+          name: recipeIngredients.name,
+          amount: recipeIngredients.amount,
+          unit: recipeIngredients.unit,
+        })
+        .from(recipeIngredients)
+        .where(eq(recipeIngredients.recipeId, recipeId));
+
+      return { recipeData, imageData, ingredientData };
+    }),
+
   getById: publicProcedure
     .input(z.object({ recipeId: z.number(), userId: z.string().optional() }))
     .query(async ({ input: { recipeId, userId }, ctx }) => {
@@ -166,18 +219,7 @@ export const recipeRouter = createTRPCRouter({
         .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
         .leftJoin(users, eq(recipes.creatorId, users.id))
         .where(eq(recipes.id, recipeId))
-        .groupBy(
-          recipes.id,
-          users.name,
-          // recipes.instructions,
-          // recipes.creatorId,
-          // recipes.name,
-          // recipes.description,
-          // recipes.category,
-          // recipes.cookingTime,
-          // recipes.difficultyLevel,
-          // recipes.createdAt,
-        )
+        .groupBy(recipes.id, users.name)
         .limit(1);
 
       return recipe;
@@ -192,7 +234,7 @@ export const recipeRouter = createTRPCRouter({
         })
         .from(recipeImages)
         .where(eq(recipeImages.recipeId, recipeId))
-        .orderBy(recipeImages.isTitle);
+        .orderBy(recipeImages.order);
 
       return images;
     }),
@@ -245,7 +287,105 @@ export const recipeRouter = createTRPCRouter({
       return { id: insertId };
     }),
 
-  // edit: protectedProcedure
+  edit: protectedProcedure
+    .input(
+      z.object({
+        recipeId: z.number(),
+        data: z.object({
+          name: z.string(),
+          description: z.string(),
+          ingredients: z.array(
+            z.object({
+              name: z.string(),
+              amount: z.number(),
+              unit: z.union([
+                z.literal("ml"),
+                z.literal("g"),
+                z.literal("pcs"),
+              ]),
+            }),
+          ),
+          instructions: z.string(),
+          category: z.string(),
+          cookingTime: z.number(),
+          difficultyLevel: z.union([
+            z.literal("easy"),
+            z.literal("intermediate"),
+            z.literal("advanced"),
+          ]),
+        }),
+        images: z.object({
+          toDelete: z.array(z.string()),
+          toEdit: z.array(
+            z.object({
+              url: z.string(),
+              key: z.string(),
+              isTitle: z.boolean(),
+              order: z.number(),
+            }),
+          ),
+        }),
+      }),
+    )
+    .mutation(
+      async ({
+        input: {
+          recipeId,
+          data,
+          images: { toDelete, toEdit },
+        },
+        ctx,
+      }) => {
+        const [recipe] = await ctx.db
+          .select({ creatorId: recipes.creatorId })
+          .from(recipes)
+          .where(eq(recipes.id, recipeId))
+          .limit(1);
+
+        if (recipe?.creatorId !== ctx.session.user.id) {
+          throw new TRPCError({ code: "UNAUTHORIZED" });
+        }
+
+        const { ingredients, ...recipeData } = data;
+        const result = await ctx.db.transaction(async (tx) => {
+          await tx
+            .update(recipes)
+            .set(recipeData)
+            .where(eq(recipes.id, recipeId));
+
+          await tx
+            .delete(recipeIngredients)
+            .where(eq(recipeIngredients.recipeId, recipeId));
+
+          await tx.insert(recipeIngredients).values(
+            ingredients.map((ingredient) => ({
+              ...ingredient,
+              recipeId,
+            })),
+          );
+        });
+
+        for (const key of toDelete) {
+          await utapi.deleteFiles([key]);
+        }
+
+        const deletionResult = await ctx.db
+          .delete(recipeImages)
+          .where(and(eq(recipeImages.recipeId, recipeId)));
+
+        const editionResult = await ctx.db.insert(recipeImages).values(
+          toEdit.map(({ url, key, isTitle, order }) => ({
+            url,
+            key,
+            recipeId,
+            isTitle,
+            order,
+          })),
+        );
+
+        return result;
+      },
+    ),
 
   delete: protectedProcedure
     .input(z.object({ recipeId: z.number() }))

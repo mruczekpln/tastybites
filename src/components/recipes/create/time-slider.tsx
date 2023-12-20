@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { type Path, type UseFormRegister } from "react-hook-form";
 import minutesToHours from "~/lib/utils/minutes-to-hours";
-import { type CreateRecipeFormSchema } from "./form";
+import { type CreateEditRecipeFormSchema } from "~/types/recipe-form";
 
 type CookingTimeSliderProps = {
-  label: Path<CreateRecipeFormSchema>;
-  register: UseFormRegister<CreateRecipeFormSchema>;
+  label: Path<CreateEditRecipeFormSchema>;
+  register: UseFormRegister<CreateEditRecipeFormSchema>;
 };
 
 export default function CookingTimeSlider({

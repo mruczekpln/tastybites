@@ -1,4 +1,4 @@
-import { type RecipeCategoryData } from "~/types";
+import { type RecipeCategoryData } from "~/types/recipe";
 
 export const CATEGORIES: RecipeCategoryData = {
   all: {

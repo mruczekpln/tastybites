@@ -1,7 +1,7 @@
 import { Clock, Heart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { type RecipeListItem } from "~/types";
+import { type RecipeListItem } from "~/types/recipe";
 
 type RecipeCardProps = {
   hideLikes?: boolean;
@@ -41,9 +41,9 @@ export default function RecipeCard({
             <Link
               href={`/recipes/${id}`}
               prefetch={false}
-              className="text-3xl leading-none"
+              className="text-2xl leading-none"
             >
-              {name}
+              {name.length > 25 ? `${name.slice(0, 25)}...` : name}
             </Link>
             {reviewCount > 0 ? (
               <div className="mt-2 flex gap-[2px]">

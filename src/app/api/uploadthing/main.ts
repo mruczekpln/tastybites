@@ -33,27 +33,34 @@ export const tastybitesFileRouter = {
 
   recipeImage: f({
     image: {
-      maxFileCount: 5,
+      maxFileCount: 1,
       maxFileSize: "2MB",
     },
   })
-    .input(z.object({ recipeId: z.number(), isTitle: z.boolean().optional() }))
-    .middleware(async ({ input: { recipeId, isTitle } }) => {
+    .input(
+      z.object({
+        recipeId: z.number(),
+        isTitle: z.boolean().optional(),
+        order: z.number(),
+      }),
+    )
+    .middleware(async ({ input: { recipeId, isTitle, order } }) => {
       const session = await getServerAuthSession();
 
       if (!session) throw new Error("Not logged in!");
 
-      return { recipeId, isTitle };
+      return { recipeId, isTitle, order };
     })
     .onUploadComplete(
-      async ({ file: { url, key }, metadata: { recipeId, isTitle } }) => {
+      async ({
+        file: { url, key },
+        metadata: { recipeId, isTitle, order },
+      }) => {
         console.log(`uploaded with recipeid = ${recipeId}`);
 
-        await db.insert(recipeImages).values({ recipeId, url, key, isTitle });
-        // else
-        //   await db
-        //     .update(recipes)
-        //     .where(eq(recipes.id, recipeId));
+        await db
+          .insert(recipeImages)
+          .values({ recipeId, url, key, isTitle, order });
       },
     ),
 } satisfies FileRouter;
