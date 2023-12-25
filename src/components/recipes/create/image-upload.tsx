@@ -26,7 +26,6 @@ export default function ImageUpload({
   imageActions: { setLocalImages, setFetched },
   formErrors,
   titleRef,
-  mode,
 }: ImageUploadProps) {
   async function onImageSelect(e: ChangeEvent<HTMLInputElement>) {
     if (!e.target.files || e.target.files.length === 0) return;
