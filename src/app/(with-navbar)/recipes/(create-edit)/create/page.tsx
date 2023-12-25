@@ -39,11 +39,12 @@ export default function CreateRecipeForm() {
     },
   });
 
-  const { totalImages, setLocalImages, uploadImages } = useRecipeFormImages({
-    setUploadState,
-    setValue,
-    mode: "create",
-  });
+  const { totalImages, setLocalImages, setFetched, uploadImages } =
+    useRecipeFormImages({
+      setUploadState,
+      setValue,
+      mode: "create",
+    });
 
   console.log("images in form: ", getValues().images);
 
@@ -68,6 +69,7 @@ export default function CreateRecipeForm() {
         errors={errors}
         control={control}
         imageActions={{
+          setFetched,
           setLocalImages,
         }}
         totalImages={totalImages}

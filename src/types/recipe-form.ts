@@ -97,7 +97,7 @@ export type Fetched = {
 
 export type ImageActions = {
   setLocalImages: Dispatch<SetStateAction<LocalImageData[]>>;
-  setFetched?: Dispatch<SetStateAction<Fetched>>;
+  setFetched: Dispatch<SetStateAction<Fetched>>;
   // setImageKeysToDelete: Dispatch<SetStateAction<string[]>>;
 };
 
