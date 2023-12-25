@@ -136,7 +136,7 @@ export default function ImageUpload({
                 ></Image>
               </div>
             ))
-          : ""}
+          : " "}
       </div>
     </>
   );
