@@ -4,7 +4,8 @@ import RedirectForm from "~/components/landing/redirect-form";
 import NavLink from "~/components/link";
 import RecommendationList from "~/components/recommendation-list";
 
-// export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 function Hero() {
   return (

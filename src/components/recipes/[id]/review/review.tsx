@@ -45,7 +45,6 @@ export default function RecipeReview({
                   { reviewId: review.id },
                   {
                     onSuccess: () => {
-                      console.log("refresh");
                       router.refresh();
                     },
                   },

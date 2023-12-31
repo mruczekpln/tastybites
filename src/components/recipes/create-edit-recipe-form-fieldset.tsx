@@ -44,8 +44,6 @@ export default function CreateEditRecipeFormFieldset({
     if (errors.ingredients)
       ingredientsTitleRef.current?.scrollIntoView(scrollProperties);
     if (errors.images) imagesTitleRef.current?.scrollIntoView(scrollProperties);
-
-    console.log(errors);
   }, [errors]);
 
   const { fields, append, remove } = useFieldArray({

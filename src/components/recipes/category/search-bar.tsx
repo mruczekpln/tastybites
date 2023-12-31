@@ -6,10 +6,7 @@ import { useEffect, useState } from "react";
 import Input from "~/components/ui/input";
 import getNewParams from "~/lib/utils/get-new-params";
 
-type SearchBarProps = {
-  category: string;
-};
-export default function SearchBar({ category }: SearchBarProps) {
+export default function SearchBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,9 +34,6 @@ export default function SearchBar({ category }: SearchBarProps) {
     <div className="max mb-8 mt-4 flex h-16 w-full items-center rounded-md border-2 border-black bg-yellow-100 px-8 shadow-button">
       <Search size={32}></Search>
       <Input
-        // className="flex h-16 w-full items-center bg-yellow-100 pl-8 text-xl duration-300 placeholder:justify-self-center focus:bg-yellow-500 focus:placeholder:font-normal focus:placeholder:text-black"
-        // value={searchParamsObject.searchQusdbasdbery ?? ""}
-        // value={inputValue}
         defaultValue={inputValue}
         border={false}
         onChange={(e) => {

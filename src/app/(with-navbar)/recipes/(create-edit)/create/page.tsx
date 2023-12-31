@@ -21,7 +21,6 @@ export default function CreateRecipeForm() {
     control,
     handleSubmit,
     setValue,
-    getValues,
     formState: { isDirty, isSubmitting, isSubmitSuccessful, errors },
   } = useForm<CreateEditRecipeFormSchema>({
     resolver: zodResolver(createEditRecipeFormSchema),
@@ -45,8 +44,6 @@ export default function CreateRecipeForm() {
       setValue,
       mode: "create",
     });
-
-  console.log("images in form: ", getValues().images);
 
   const addRecipe = api.recipe.add.useMutation();
 

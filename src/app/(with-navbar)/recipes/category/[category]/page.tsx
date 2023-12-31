@@ -36,7 +36,7 @@ export default function Category({
           {currentCategoryDetails.subtitleText}
         </p>
       </div>
-      <SearchBar category={params.category}></SearchBar>
+      <SearchBar></SearchBar>
       <div className="flex w-full justify-between">
         <CategoryList></CategoryList>
         <SortBy></SortBy>

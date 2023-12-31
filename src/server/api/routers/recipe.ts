@@ -133,7 +133,6 @@ export const recipeRouter = createTRPCRouter({
         withPagination(recipeListBaseQuery, page, perPage);
 
         const recipeList = await recipeListBaseQuery;
-        console.log(recipeList);
 
         return recipeList as RecipeListItem[];
       },
@@ -264,7 +263,6 @@ export const recipeRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const insertId = await ctx.db.transaction(async (tx) => {
-        console.log(input);
         const { insertId } = await tx.insert(recipes).values({
           creatorId: ctx.session.user.id,
           name: input.name,
@@ -370,11 +368,11 @@ export const recipeRouter = createTRPCRouter({
           await utapi.deleteFiles([key]);
         }
 
-        const deletionResult = await ctx.db
+        await ctx.db
           .delete(recipeImages)
           .where(and(eq(recipeImages.recipeId, recipeId)));
 
-        const editionResult = await ctx.db.insert(recipeImages).values(
+        await ctx.db.insert(recipeImages).values(
           toEdit.map(({ url, key, isTitle, order }) => ({
             url,
             key,

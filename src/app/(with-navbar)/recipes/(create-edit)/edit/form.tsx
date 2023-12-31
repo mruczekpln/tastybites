@@ -39,23 +39,17 @@ export default function EditRecipeForm({
     },
   });
 
-  const {
-    totalImages,
-    localImages,
-    fetched,
-    setFetched,
-    setLocalImages,
-    uploadImages,
-  } = useRecipeFormImages({
-    setUploadState,
-    setValue,
-    defaultFetchedImages: defaultValues.images.map((fetchedImage, index) => ({
-      ...fetchedImage,
-      origin: "fetched",
-      order: index,
-    })),
-    mode: "edit",
-  });
+  const { totalImages, fetched, setFetched, setLocalImages, uploadImages } =
+    useRecipeFormImages({
+      setUploadState,
+      setValue,
+      defaultFetchedImages: defaultValues.images.map((fetchedImage, index) => ({
+        ...fetchedImage,
+        origin: "fetched",
+        order: index,
+      })),
+      mode: "edit",
+    });
 
   // const updateImagesMutation = api.recipe.updateImages.useMutation();
   // const editRecipeDataMutation = api.recipe.editRecipeData.useMutation();

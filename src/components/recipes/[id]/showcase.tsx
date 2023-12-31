@@ -18,8 +18,6 @@ export default function RecipeShowcase({ recipeId }: RecipeShowcaseProps) {
     },
   );
 
-  console.log(isSuccess && images);
-
   return (
     <div className="flex h-full w-full justify-between gap-4">
       {isSuccess && (

@@ -43,8 +43,6 @@ export default async function CategoryRecipeList({
     },
   });
 
-  console.log(recipeList);
-
   return (
     <section className="flex w-2/3 flex-col gap-8">
       {recipeList.length > 0 ? (
