@@ -77,14 +77,8 @@ function Hero() {
             </NavLink>
           </div>
         </section>
-        <section className="flex h-[700px] min-w-[600px] items-center justify-center rounded-2xl border-2 border-black bg-yellow-200 duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:bg-yellow-500 hover:shadow-button">
-          <Image
-            src="/hero/illustration.svg"
-            alt="illustration"
-            width={600}
-            height={600}
-            priority
-          ></Image>
+        <section className="relative flex h-[700px] min-w-[600px] items-center justify-center rounded-2xl border-2 border-black bg-yellow-200 duration-300 hover:translate-x-[2px] hover:translate-y-[-2px] hover:bg-yellow-500 hover:shadow-button">
+          <Image src="/hero/illustration.svg" alt="illustration" fill></Image>
         </section>
       </main>
     </div>

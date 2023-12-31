@@ -62,14 +62,14 @@ export default function EditAndDelete({ recipeId }: EditAndDeleteProps) {
   return (
     <div className="flex items-center gap-2">
       <p>manage your recipe: </p>
-      <Link href={`/recipes/edit?recipeId=${recipeId}`}>
-        <Button variant="ghost">
+      <Link title="edit-recipe" href={`/recipes/edit?recipeId=${recipeId}`}>
+        <Button title="edit-recipe" variant="ghost">
           <Pencil></Pencil>
         </Button>
       </Link>
       <AlertDialog.Root>
         <AlertDialog.Trigger asChild>
-          <Button variant="ghost">
+          <Button title="delete-recipe" variant="ghost">
             <Trash2 className="stroke-red-500"></Trash2>
           </Button>
         </AlertDialog.Trigger>

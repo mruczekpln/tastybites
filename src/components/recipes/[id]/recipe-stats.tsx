@@ -54,7 +54,7 @@ export default function RecipeStats({
         <Button
           onClick={onLikeClick}
           variant="ghost"
-          name="like-recipe"
+          title="like-recipe"
           className={"ml-2 px-2 py-1"}
         >
           <Heart

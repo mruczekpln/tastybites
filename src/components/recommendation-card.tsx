@@ -25,12 +25,19 @@ export default function RecommendationCard({
         <h3 className="font-bold">{name}</h3>
         <p>
           by:{" "}
-          <Link className="z-30 hover:underline" href={`/account/${username}`}>
+          <Link
+            title={name}
+            prefetch={false}
+            className="z-30 hover:underline"
+            href={`/account/${username}`}
+          >
             {username}
           </Link>
         </p>
       </div>
       <Link
+        title={name}
+        prefetch={false}
         className="absolute inset-0 z-20 h-full w-full"
         href={`/recipes/${id}`}
       ></Link>
