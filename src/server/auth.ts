@@ -4,18 +4,14 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GithubProvider, { type GithubProfile } from "next-auth/providers/github";
 
+import bcrypt from "bcrypt";
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 import { mysqlTable } from "~/server/db/schema";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -26,51 +22,74 @@ declare module "next-auth" {
   }
 
   // interface User {
+  //   id: string;
   //   // ...other properties
   //   // role: UserRole;
   // }
 }
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
 export const authOptions: NextAuthOptions = {
+  secret: env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 3600,
+  },
+  pages: {
+    signIn: "/auth/login",
+  },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub,
+        },
+      };
+    },
   },
   adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
-    // DiscordProvider({
-    //   clientId: env.DISCORD_CLIENT_ID,
-    //   clientSecret: env.DISCORD_CLIENT_SECRET,
-    // }),
+    CredentialsProvider({
+      credentials: {},
+      async authorize(credentials) {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+
+        const user = await db.query.users.findFirst({
+          where: (users, { eq }) => eq(users.email, email),
+        });
+
+        if (!user)
+          throw new Error(
+            "email,Account with this email adress doesn't exist!",
+          );
+
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          user.hashedPassword!,
+        );
+
+        if (!isPasswordValid) throw new Error("password,Wrong password!");
+
+        return user;
+      },
+    }),
     GithubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+      profile(profile: GithubProfile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
   ],
 };
 
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
 export const getServerAuthSession = () => getServerSession(authOptions);
