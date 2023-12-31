@@ -74,7 +74,10 @@ export default function RecipeReviewForm({ recipeId }: RecipeReviewFormProps) {
           rows={4}
           {...register("content")}
         ></textarea>
-        <Button className="flex grow items-center justify-center rounded-xl bg-yellow-500">
+        <Button
+          title="add-review"
+          className="flex grow items-center justify-center rounded-xl bg-yellow-500"
+        >
           <CornerDownRight size={48}></CornerDownRight>
         </Button>
       </div>

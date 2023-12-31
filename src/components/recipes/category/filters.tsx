@@ -7,7 +7,7 @@ import FilterCheckbox from "./filters-checkbox";
 
 type SearchFilters = {
   cookingTimeRanges: string[];
-  difficultyLevels: string[];
+  difficdivtyLevels: string[];
   ratings: string[];
 };
 
@@ -19,7 +19,7 @@ export default function Filters() {
   const searchParamsObject = {
     ...Object.fromEntries(searchParams.entries()),
     cookingTimeRanges: searchParams.get("cookingTimeRanges")?.split(",") ?? [],
-    difficultyLevels: searchParams.get("difficultyLevels")?.split(",") ?? [],
+    difficdivtyLevels: searchParams.get("difficdivtyLevels")?.split(",") ?? [],
     ratings: searchParams.get("ratings")?.split(",") ?? [],
   };
 
@@ -57,7 +57,7 @@ export default function Filters() {
         ></Image>{" "}
         Cooking Time
       </h2>
-      <ul className="ml-8 flex flex-col gap-2  [&>*]:flex [&>*]:gap-4">
+      <div className="ml-8 flex flex-col gap-2  [&>*]:flex [&>*]:gap-4">
         <FilterCheckbox
           name="<10"
           onChange={() => handleChecbkoxChange("cookingTimeRanges", "5-10")}
@@ -100,7 +100,7 @@ export default function Filters() {
         >
           more than 2 hours
         </FilterCheckbox>
-      </ul>
+      </div>
       <h2 className="my-4 text-3xl font-semibold">
         <Image
           src="/hero/arrow1.svg"
@@ -109,14 +109,14 @@ export default function Filters() {
           height={48}
           className="inline rotate-90"
         ></Image>{" "}
-        Difficulty Level
+        Difficdivty Level
       </h2>
-      <ul className="ml-8 flex flex-col gap-2 [&>*]:flex [&>*]:gap-4">
+      <div className="ml-8 flex flex-col gap-2 [&>*]:flex [&>*]:gap-4">
         <FilterCheckbox
           name="easy"
           className="flex"
-          onChange={() => handleChecbkoxChange("difficultyLevels", "easy")}
-          checked={searchParamsObject.difficultyLevels.includes("easy")}
+          onChange={() => handleChecbkoxChange("difficdivtyLevels", "easy")}
+          checked={searchParamsObject.difficdivtyLevels.includes("easy")}
         >
           Easy
         </FilterCheckbox>
@@ -124,21 +124,23 @@ export default function Filters() {
           name="intermediate"
           className="flex"
           onChange={() =>
-            handleChecbkoxChange("difficultyLevels", "intermediate")
+            handleChecbkoxChange("difficdivtyLevels", "intermediate")
           }
-          checked={searchParamsObject.difficultyLevels.includes("intermediate")}
+          checked={searchParamsObject.difficdivtyLevels.includes(
+            "intermediate",
+          )}
         >
           Intermediate
         </FilterCheckbox>
         <FilterCheckbox
           name="advanced"
           className="flex"
-          onChange={() => handleChecbkoxChange("difficultyLevels", "advanced")}
-          checked={searchParamsObject.difficultyLevels.includes("advanced")}
+          onChange={() => handleChecbkoxChange("difficdivtyLevels", "advanced")}
+          checked={searchParamsObject.difficdivtyLevels.includes("advanced")}
         >
           Advanced
         </FilterCheckbox>
-      </ul>
+      </div>
       <h2 className="my-4 text-3xl font-semibold">
         <Image
           src="/hero/arrow1.svg"
@@ -149,7 +151,7 @@ export default function Filters() {
         ></Image>{" "}
         Rating
       </h2>
-      <ul className="ml-8 flex flex-col gap-2 [&>*]:flex [&>*]:gap-4">
+      <div className="ml-8 flex flex-col gap-2 [&>*]:flex [&>*]:gap-4">
         <FilterCheckbox
           name="1-star"
           className="flex"
@@ -190,7 +192,7 @@ export default function Filters() {
         >
           5 stars
         </FilterCheckbox>
-      </ul>
+      </div>
     </aside>
   );
 }
