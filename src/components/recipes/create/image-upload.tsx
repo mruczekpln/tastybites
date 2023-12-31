@@ -117,10 +117,6 @@ export default function ImageUpload({
                 >
                   Title Image
                 </div>
-                <div className="absolute bottom-0 left-0 z-10 rounded-br-md border-b-2 border-r-2 border-black bg-gray-200 p-4">
-                  {image.origin === "added" ? "Added" : "Fetched"} <br />
-                  {image.order}
-                </div>
                 <Button
                   type="button"
                   onClick={() => onImageDelete(image.key)}
