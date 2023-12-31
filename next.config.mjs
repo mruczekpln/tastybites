@@ -5,18 +5,6 @@
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
-const config = {
-  images: {
-    remotePatterns: [
-      {
-        hostname: "images.unsplash.com",
-      },
-      {
-        hostname: "avatars.githubusercontent.com",
-      },
-      { hostname: "utfs.io" },
-    ],
-  },
-};
+const config = {};
 
 export default config;
