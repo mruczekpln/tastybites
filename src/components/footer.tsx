@@ -19,7 +19,7 @@ export default function Footer() {
           <h2 className="text-xl">
             made by:{" "}
             <Link
-              href="https://yummycoffee.github.io"
+              href="https://mruczek-pln.vercel.app/"
               target="_blank"
               className="ml-4 cursor-pointer text-5xl font-bold duration-75 hover:tracking-wide"
             >
