@@ -1,38 +1,44 @@
 import { relations } from "drizzle-orm";
+
 import {
   bigint,
   boolean,
-  integer,
-  pgEnum,
-  pgTable,
+  index,
+  int,
+  mysqlEnum,
+  mysqlTableCreator,
   primaryKey,
   serial,
   smallint,
   text,
   timestamp,
+  tinyint,
   varchar,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/mysql-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-export const accounts = pgTable(
+export const mysqlTable = mysqlTableCreator((name) => `tastybites_${name}`);
+
+export const accounts = mysqlTable(
   "account",
   {
     userId: varchar("userId", { length: 255 }).notNull(),
+    // .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 })
       .$type<AdapterAccount["type"]>()
       .notNull(),
     provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
     refresh_token: varchar("refresh_token", { length: 255 }),
     access_token: varchar("access_token", { length: 255 }),
-    expires_at: integer("expires_at"),
+    expires_at: int("expires_at"),
     token_type: varchar("token_type", { length: 255 }),
     scope: varchar("scope", { length: 255 }),
     id_token: varchar("id_token", { length: 2048 }),
     session_state: varchar("session_state", { length: 255 }),
   },
   (account) => ({
-    // userIdIdx: index("idx_account_userId").on(account.userId),
+    userIdIdx: index("idx_account_userId").on(account.userId),
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
@@ -43,7 +49,7 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
-export const verificationTokens = pgTable(
+export const verificationTokens = mysqlTable(
   "verification_token",
   {
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -57,7 +63,7 @@ export const verificationTokens = pgTable(
   }),
 );
 
-export const users = pgTable(
+export const users = mysqlTable(
   "user",
   {
     id: varchar("id", { length: 36 }).notNull().primaryKey(),
@@ -68,9 +74,9 @@ export const users = pgTable(
     image: varchar("image", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  // (table) => ({
-  //   idIndex: index("idx_user_id").on(table.id),
-  // }),
+  (table) => ({
+    idIndex: index("idx_user_id").on(table.id),
+  }),
 );
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -80,7 +86,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   recipeReviews: many(recipeReviews),
 }));
 
-export const recipes = pgTable(
+export const recipes = mysqlTable(
   "recipe",
   {
     id: serial("id").primaryKey(),
@@ -93,17 +99,17 @@ export const recipes = pgTable(
     instructions: text("instructions").notNull(),
     category: varchar("category", { length: 10 }).notNull(),
     cookingTime: smallint("cooking_time").notNull(),
-    difficultyLevel: pgEnum("difficulty_level", [
+    difficultyLevel: mysqlEnum("difficulty_level", [
       "easy",
       "intermediate",
       "advanced",
-    ])("difficulty_level"),
+    ]).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  // (table) => ({
-  //   // idIdx: index("idx_recipe_id").on(table.id),
-  //   creatorIdIdx: index("idx_recipe_creator_id").on(table.creatorId),
-  // }),
+  (table) => ({
+    // idIdx: index("idx_recipe_id").on(table.id),
+    creatorIdIdx: index("idx_recipe_creator_id").on(table.creatorId),
+  }),
 );
 
 export const recipesRelations = relations(recipes, ({ one, many }) => ({
@@ -114,9 +120,9 @@ export const recipesRelations = relations(recipes, ({ one, many }) => ({
   recipeReviews: many(recipeReviews),
 }));
 
-export const recipeImages = pgTable("recipe_image", {
+export const recipeImages = mysqlTable("recipe_image", {
   id: serial("id").primaryKey(),
-  recipeId: bigint("recipe_id", { mode: "number" }).notNull(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
   key: varchar("key", { length: 255 }).notNull(),
   url: varchar("url", { length: 255 }).notNull(),
   isTitle: boolean("is_title").$default(() => false),
@@ -131,11 +137,11 @@ export const recipeImagesRelations = relations(recipeImages, ({ one }) => ({
   }),
 }));
 
-export const recipeLikes = pgTable(
+export const recipeLikes = mysqlTable(
   "recipe_like",
   {
     id: serial("id").primaryKey(),
-    recipeId: bigint("recipe_id", { mode: "number" }).notNull(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
     // .references(() => recipes.id, {
     //   onDelete: "cascade",
     // }),
@@ -149,11 +155,11 @@ export const recipeLikes = pgTable(
     // }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  // (table) => ({
-  //   recipeIdIdx: index("idx_recipe_like_recipe_id").on(table.recipeId),
-  //   creatorIdIdx: index("idx_recipe_like_creator_id").on(table.creatorId),
-  //   likedByIdIdx: index("idx_recipe_like_liked_by_id").on(table.likedById),
-  // }),
+  (table) => ({
+    recipeIdIdx: index("idx_recipe_like_recipe_id").on(table.recipeId),
+    creatorIdIdx: index("idx_recipe_like_creator_id").on(table.creatorId),
+    likedByIdIdx: index("idx_recipe_like_liked_by_id").on(table.likedById),
+  }),
 );
 
 export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
@@ -164,15 +170,15 @@ export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
   }),
 }));
 
-export const recipeIngredients = pgTable("recipe_ingredient", {
+export const recipeIngredients = mysqlTable("recipe_ingredient", {
   id: serial("id").primaryKey(),
-  recipeId: bigint("recipe_id", { mode: "number" }).notNull(),
+  recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
   // .references(() => recipes.id, {
   //   onDelete: "cascade",
   // }),
   name: varchar("name", { length: 50 }).notNull(),
   amount: smallint("amount").notNull(),
-  unit: pgEnum("unit", ["g", "ml", "pcs"])("unit"),
+  unit: mysqlEnum("unit", ["g", "ml", "pcs"]),
 });
 
 export const recipeIngredientsRelations = relations(
@@ -185,11 +191,11 @@ export const recipeIngredientsRelations = relations(
   }),
 );
 
-export const recipeReviews = pgTable(
+export const recipeReviews = mysqlTable(
   "recipe_review",
   {
     id: serial("id").primaryKey(),
-    recipeId: bigint("recipe_id", { mode: "number" }).notNull(),
+    recipeId: bigint("recipe_id", { mode: "number", unsigned: true }).notNull(),
     // .references(() => recipes.id, {
     //   onDelete: "cascade",
     // }),
@@ -197,13 +203,13 @@ export const recipeReviews = pgTable(
     // .references(() => users.id, {
     //   onDelete: "cascade",
     // }),
-    rating: smallint("rating").notNull(),
+    rating: tinyint("rating").notNull(),
     content: text("content").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  // (table) => ({
-  //   recipeIdTdx: index("idx_recipe_review_recipe_id").on(table.recipeId),
-  // }),
+  (table) => ({
+    recipeIdTdx: index("idx_recipe_review_recipe_id").on(table.recipeId),
+  }),
 );
 
 export const recipeReviewsRelations = relations(recipeReviews, ({ one }) => ({
