@@ -10,7 +10,7 @@ import GithubProvider, { type GithubProfile } from "next-auth/providers/github";
 import bcrypt from "bcrypt";
 import { env } from "~/env.mjs";
 import { db } from "~/server/db";
-import { mysqlTable } from "~/server/db/schema";
+import { type Adapter } from "next-auth/adapters";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
       };
     },
   },
-  adapter: DrizzleAdapter(db, mysqlTable),
+  adapter: DrizzleAdapter(db) as Adapter,
   providers: [
     CredentialsProvider({
       credentials: {},

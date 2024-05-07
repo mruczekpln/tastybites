@@ -140,7 +140,7 @@ export const userRouter = createTRPCRouter({
             eq(recipeImages.isTitle, true),
           ),
         )
-        .groupBy(recipes.id, recipeImages.url)
+        .groupBy(recipes.id, users.name, recipeImages.url)
         .orderBy(desc(recipes.createdAt))
         .$dynamic();
 

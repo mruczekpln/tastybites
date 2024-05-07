@@ -1,8 +1,8 @@
 import { asc, desc, sql } from "drizzle-orm";
-import { type MySqlSelect } from "drizzle-orm/mysql-core";
 import { recipes } from "./schema";
+import { type PgSelect } from "drizzle-orm/pg-core";
 
-export function withPagination<T extends MySqlSelect>(
+export function withPagination<T extends PgSelect>(
   qb: T,
   page: number,
   perPage: number,
@@ -10,7 +10,7 @@ export function withPagination<T extends MySqlSelect>(
   return void qb.limit(perPage + 1 || 11).offset((page - 1) * perPage);
 }
 
-export function withSorting<T extends MySqlSelect>(qb: T, sortBy: string) {
+export function withSorting<T extends PgSelect>(qb: T, sortBy: string) {
   if (sortBy === "likes")
     return void qb.orderBy(sql`like_count desc`, recipes.id);
   else if (sortBy === "name")

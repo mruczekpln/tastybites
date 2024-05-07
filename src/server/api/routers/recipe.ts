@@ -5,6 +5,7 @@ import {
   countDistinct,
   desc,
   eq,
+  exists,
   inArray,
   like,
   sql,
@@ -23,7 +24,7 @@ import {
 import { utapi } from "~/server/uploadthing";
 import { type RecipeListItem } from "~/types/recipe";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { publicProcedure } from "./../trpc";
+import { publicProcedure } from "../trpc";
 
 export const recipeRouter = createTRPCRouter({
   getPage: publicProcedure
@@ -100,13 +101,20 @@ export const recipeRouter = createTRPCRouter({
               sql<number>`COALESCE(AVG(${recipeReviews.rating}), 0)`.as(
                 "average_rating",
               ),
-            ...(userId
-              ? {
-                  isUserLiking: sql.raw(
-                    `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
-                  ),
-                }
-              : {}),
+            ...(userId && {
+              isUserLiking: exists(
+                ctx.db
+                  .select()
+                  .from(recipeLikes)
+                  .where(
+                    and(
+                      eq(recipeLikes.likedById, userId),
+                      eq(recipeLikes.recipeId, recipes.id),
+                    ),
+                  )
+                  .limit(1),
+              ),
+            }),
             titleImageUrl: recipeImages.url,
           })
           .from(recipes)
@@ -154,13 +162,20 @@ export const recipeRouter = createTRPCRouter({
           ownerId: recipes.creatorId,
           username: users.name,
           like_count: count(recipeLikes.id),
-          ...(userId
-            ? {
-                isUserLiking: sql.raw(
-                  `MAX(CASE WHEN tastybites_recipe_like.liked_by_id = '${userId}' THEN 1 ELSE 0 END)`,
-                ),
-              }
-            : {}),
+          ...(userId && {
+            isUserLiking: exists(
+              ctx.db
+                .select()
+                .from(recipeLikes)
+                .where(
+                  and(
+                    eq(recipeLikes.likedById, userId),
+                    eq(recipeLikes.recipeId, recipes.id),
+                  ),
+                )
+                .limit(1),
+            ),
+          }),
         })
         .from(recipes)
         .leftJoin(recipeLikes, eq(recipes.id, recipeLikes.recipeId))
@@ -169,7 +184,17 @@ export const recipeRouter = createTRPCRouter({
         .groupBy(recipes.id, users.name)
         .limit(1);
 
-      return recipe;
+      const ingredients = await ctx.db
+        .select({
+          id: recipeIngredients.id,
+          name: recipeIngredients.name,
+          amount: recipeIngredients.amount,
+          unit: recipeIngredients.unit,
+        })
+        .from(recipeIngredients)
+        .where(eq(recipeIngredients.recipeId, recipeId));
+
+      return { recipeData: recipe, ingredients };
     }),
 
   getImagesById: publicProcedure
@@ -263,15 +288,19 @@ export const recipeRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const insertId = await ctx.db.transaction(async (tx) => {
-        const { insertId } = await tx.insert(recipes).values({
-          creatorId: ctx.session.user.id,
-          name: input.name,
-          description: input.description,
-          instructions: input.instructions,
-          category: input.category,
-          cookingTime: input.cookingTime,
-          difficultyLevel: input.difficultyLevel,
-        });
+        const insertId = await tx
+          .insert(recipes)
+          .values({
+            creatorId: ctx.session.user.id,
+            name: input.name,
+            description: input.description,
+            instructions: input.instructions,
+            category: input.category,
+            cookingTime: input.cookingTime,
+            difficultyLevel: input.difficultyLevel,
+          })
+          .returning({ insertId: recipes.id })
+          .then((returned) => returned[0]?.insertId ?? null);
 
         await tx.insert(recipeIngredients).values(
           input.ingredients.map((ingredient) => ({
@@ -372,15 +401,16 @@ export const recipeRouter = createTRPCRouter({
           .delete(recipeImages)
           .where(and(eq(recipeImages.recipeId, recipeId)));
 
-        await ctx.db.insert(recipeImages).values(
-          toEdit.map(({ url, key, isTitle, order }) => ({
-            url,
-            key,
-            recipeId,
-            isTitle,
-            order,
-          })),
-        );
+        if (toEdit.length > 0)
+          await ctx.db.insert(recipeImages).values(
+            toEdit.map(({ url, key, isTitle, order }) => ({
+              url,
+              key,
+              recipeId,
+              isTitle,
+              order,
+            })),
+          );
 
         return result;
       },
@@ -460,7 +490,6 @@ export const recipeRouter = createTRPCRouter({
         recipeId: z.number(),
         page: z.number(),
         perPage: z.number(),
-        // sortBy: z.string(),
       }),
     )
     .query(async ({ input: { recipeId, page, perPage }, ctx }) => {
@@ -516,6 +545,7 @@ export const recipeRouter = createTRPCRouter({
             .select({ userId: recipeReviews.userId })
             .from(recipeReviews)
             .where(eq(recipeReviews.id, input.reviewId));
+
           if (review?.userId !== ctx.session.user.id) {
             tx.rollback();
             return;

@@ -10,7 +10,10 @@ import RouteDisplay from "~/components/recipes/path-display";
 import RecommendationList from "~/components/recommendation-list";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
-import { type PaginationSearchParams } from "~/types/recipe";
+import {
+  type RecipeIngredient,
+  type PaginationSearchParams,
+} from "~/types/recipe";
 
 export default async function Recipe({
   params,
@@ -22,7 +25,7 @@ export default async function Recipe({
   const session = await getServerAuthSession();
   const recipeId = Number(params.id);
 
-  const recipeData = await api.recipe.getById.query({
+  const { recipeData, ingredients } = await api.recipe.getById.query({
     recipeId,
     userId: session?.user?.id,
   });
@@ -45,7 +48,7 @@ export default async function Recipe({
           arr={[
             { displayedName: "recipes", href: "/recipes" },
             {
-              displayedName: recipeData?.category ?? "",
+              displayedName: recipeData!.category ?? "",
               href: `/recipes/category/${recipeData?.category ?? "dinner"}`,
             },
             { displayedName: recipeData?.name ?? "" },
@@ -76,12 +79,12 @@ export default async function Recipe({
             }}
             cookingTime={recipeData!.cookingTime}
             description={recipeData!.description}
-            difficultyLevel={recipeData!.difficultyLevel}
+            difficultyLevel={recipeData!.difficultyLevel!}
           ></RecipeSummary>
         </div>
 
         <RecipeIngredientList
-          recipeId={Number(params.id)}
+          ingredients={ingredients as RecipeIngredient[]}
         ></RecipeIngredientList>
 
         <h2 className="mb-4 mt-16 text-4xl font-bold">Instructions</h2>

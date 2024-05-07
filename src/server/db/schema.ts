@@ -22,7 +22,7 @@ export const accounts = pgTable(
       .$type<AdapterAccount["type"]>()
       .notNull(),
     provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
     refresh_token: varchar("refresh_token", { length: 255 }),
     access_token: varchar("access_token", { length: 255 }),
     expires_at: integer("expires_at"),
@@ -80,6 +80,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   recipeReviews: many(recipeReviews),
 }));
 
+export const difficultyLevelEnum = pgEnum("difficulty_level", [
+  "easy",
+  "intermediate",
+  "advanced",
+]);
+
 export const recipes = pgTable(
   "recipe",
   {
@@ -93,11 +99,7 @@ export const recipes = pgTable(
     instructions: text("instructions").notNull(),
     category: varchar("category", { length: 10 }).notNull(),
     cookingTime: smallint("cooking_time").notNull(),
-    difficultyLevel: pgEnum("difficulty_level", [
-      "easy",
-      "intermediate",
-      "advanced",
-    ])("difficulty_level"),
+    difficultyLevel: difficultyLevelEnum("difficulty_level"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   // (table) => ({
@@ -164,6 +166,8 @@ export const recipeLikesRelations = relations(recipeLikes, ({ one }) => ({
   }),
 }));
 
+export const unitEnum = pgEnum("unit", ["g", "ml", "pcs"]);
+
 export const recipeIngredients = pgTable("recipe_ingredient", {
   id: serial("id").primaryKey(),
   recipeId: bigint("recipe_id", { mode: "number" }).notNull(),
@@ -172,7 +176,7 @@ export const recipeIngredients = pgTable("recipe_ingredient", {
   // }),
   name: varchar("name", { length: 50 }).notNull(),
   amount: smallint("amount").notNull(),
-  unit: pgEnum("unit", ["g", "ml", "pcs"])("unit"),
+  unit: unitEnum("unit"),
 });
 
 export const recipeIngredientsRelations = relations(
