@@ -89,8 +89,8 @@ function PoweredBy() {
   return (
     <div className="flex h-32 w-full items-center justify-center gap-8 border-y-2 border-black bg-yellow-100">
       <p className="text-xl font-bold">Powered by:</p>
-      <div className="flex items-center gap-12">
-        <Link href="https://create.t3.gg" target="_blank">
+      <div className="flex items-center gap-6">
+        <Link href="https://create.t3.gg" target="_blank" className="mr-4">
           <Image
             src="/powered/t3-dark.svg"
             alt="T3 Stack"
@@ -100,13 +100,13 @@ function PoweredBy() {
           ></Image>
         </Link>
         <p className="text-2xl">+</p>
-        <Link href="https://planetscale.com" target="_blank">
+        <Link href="https://supabase.com" target="_blank">
           <Image
-            className="object-cover"
-            src="/powered/planetscale.png"
+            className="object-cover brightness-0 grayscale"
+            src="/powered/supabase.png"
             alt="PlanetScale"
-            width={200}
-            height={96}
+            width={80}
+            height={80}
             priority
           ></Image>
         </Link>
