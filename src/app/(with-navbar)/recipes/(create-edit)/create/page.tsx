@@ -42,7 +42,6 @@ export default function CreateRecipeForm() {
     useRecipeFormImages({
       setUploadState,
       setValue,
-      mode: "create",
     });
 
   const addRecipe = api.recipe.add.useMutation();

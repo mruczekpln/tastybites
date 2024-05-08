@@ -35,7 +35,7 @@ export default function Filters() {
         ? searchParamsObject[filterGroupKey]
             .filter((value) => value !== checkboxValue)
             .join(",")
-        : [...searchParamsObject[filterGroupKey]!, checkboxValue].join(","),
+        : [...searchParamsObject[filterGroupKey], checkboxValue].join(","),
       page: "1",
     } as SearchFilters;
 

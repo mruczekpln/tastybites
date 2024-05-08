@@ -48,11 +48,8 @@ export default function EditRecipeForm({
         origin: "fetched",
         order: index,
       })),
-      mode: "edit",
     });
 
-  // const updateImagesMutation = api.recipe.updateImages.useMutation();
-  // const editRecipeDataMutation = api.recipe.editRecipeData.useMutation();
   const editMutation = api.recipe.edit.useMutation();
 
   const onSubmit = async (data: CreateEditRecipeFormSchema) => {

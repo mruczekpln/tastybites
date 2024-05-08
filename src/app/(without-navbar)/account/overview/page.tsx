@@ -20,6 +20,7 @@ async function getUserOverwiev(userId: string) {
     .leftJoin(recipeLikes, eq(recipeLikes.likedById, users.id))
     .leftJoin(recipes, eq(recipes.creatorId, users.id))
     .where(eq(users.id, userId))
+    .groupBy(users.createdAt)
     .limit(1);
 
   const [totalRecipeData] = await db

@@ -13,14 +13,12 @@ import { uploadFiles } from "../uploadthing/helpers";
 type useRecipeFormImagesProps = {
   setValue: UseFormSetValue<CreateEditRecipeFormSchema>;
   setUploadState: Dispatch<SetStateAction<CreationState>>;
-  mode: "create" | "edit";
   defaultLocalImages?: LocalImageData[];
   defaultFetchedImages?: FetchedImageData[];
 };
 export default function useRecipeFormImages({
   setValue,
   setUploadState,
-  mode,
   defaultLocalImages = [],
   defaultFetchedImages = [],
 }: useRecipeFormImagesProps) {
@@ -58,6 +56,7 @@ export default function useRecipeFormImages({
 
     for (const image of totalImages) {
       if (image.origin === "added") {
+        console.log("uploading image: ", image);
         await uploadFiles("recipeImage", {
           input: { recipeId, order: image.order, isTitle: image.order === 0 },
           files: [image.file],

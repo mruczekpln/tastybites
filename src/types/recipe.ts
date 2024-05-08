@@ -12,6 +12,12 @@ export type RecipeListItem = {
   titleImageUrl: string;
 };
 
+export type RecipeIngredient = {
+  name: string;
+  amount: number;
+  unit: string;
+};
+
 export type ReviewListItem = {
   id: number;
   rating: number;

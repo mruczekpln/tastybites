@@ -1,8 +1,7 @@
-import { drizzle } from "drizzle-orm/planetscale-serverless";
-
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { env } from "~/env.mjs";
 
-import { Client } from "@planetscale/database";
 import * as schema from "./schema";
 
 // const connection = connect({
@@ -13,9 +12,17 @@ import * as schema from "./schema";
 
 // export const db = drizzle(connection, { schema });
 
+// export const db = drizzle(
+//   new Client({
+//     url: env.DATABASE_URL,
+//   }).connection(),
+//   { schema },
+// );
+
 export const db = drizzle(
-  new Client({
-    url: env.DATABASE_URL,
-  }).connection(),
+  postgres(env.DATABASE_URL, {
+    prepare: false,
+    ssl: { rejectUnauthorized: false },
+  }),
   { schema },
 );
