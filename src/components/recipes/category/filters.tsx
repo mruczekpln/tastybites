@@ -7,7 +7,7 @@ import FilterCheckbox from "./filters-checkbox";
 
 type SearchFilters = {
   cookingTimeRanges: string[];
-  difficdivtyLevels: string[];
+  difficultyLevels: string[];
   ratings: string[];
 };
 
@@ -19,7 +19,7 @@ export default function Filters() {
   const searchParamsObject = {
     ...Object.fromEntries(searchParams.entries()),
     cookingTimeRanges: searchParams.get("cookingTimeRanges")?.split(",") ?? [],
-    difficdivtyLevels: searchParams.get("difficdivtyLevels")?.split(",") ?? [],
+    difficultyLevels: searchParams.get("difficultyLevels")?.split(",") ?? [],
     ratings: searchParams.get("ratings")?.split(",") ?? [],
   };
 
@@ -115,8 +115,8 @@ export default function Filters() {
         <FilterCheckbox
           name="easy"
           className="flex"
-          onChange={() => handleChecbkoxChange("difficdivtyLevels", "easy")}
-          checked={searchParamsObject.difficdivtyLevels.includes("easy")}
+          onChange={() => handleChecbkoxChange("difficultyLevels", "easy")}
+          checked={searchParamsObject.difficultyLevels.includes("easy")}
         >
           Easy
         </FilterCheckbox>
@@ -124,19 +124,17 @@ export default function Filters() {
           name="intermediate"
           className="flex"
           onChange={() =>
-            handleChecbkoxChange("difficdivtyLevels", "intermediate")
+            handleChecbkoxChange("difficultyLevels", "intermediate")
           }
-          checked={searchParamsObject.difficdivtyLevels.includes(
-            "intermediate",
-          )}
+          checked={searchParamsObject.difficultyLevels.includes("intermediate")}
         >
           Intermediate
         </FilterCheckbox>
         <FilterCheckbox
           name="advanced"
           className="flex"
-          onChange={() => handleChecbkoxChange("difficdivtyLevels", "advanced")}
-          checked={searchParamsObject.difficdivtyLevels.includes("advanced")}
+          onChange={() => handleChecbkoxChange("difficultyLevels", "advanced")}
+          checked={searchParamsObject.difficultyLevels.includes("advanced")}
         >
           Advanced
         </FilterCheckbox>

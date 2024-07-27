@@ -21,6 +21,8 @@ export default async function CategoryRecipeList({
   const page = Number(searchParams.page ?? 1);
   const perPage = Number(searchParams.perPage ?? 10);
 
+  console.log(searchParams);
+
   const recipeList = await api.recipe.getPage.query({
     userId: session?.user.id,
     category,

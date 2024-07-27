@@ -9,8 +9,11 @@ import {
   inArray,
   like,
   sql,
+  between,
+  or,
   type SQL,
 } from "drizzle-orm";
+import { PgDialect } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { withPagination, withSorting } from "~/server/db/dynamics";
 import {
@@ -73,17 +76,16 @@ export const recipeRouter = createTRPCRouter({
         if (difficultyLevelsArr.length > 0)
           filters.push(inArray(recipes.difficultyLevel, difficultyLevelsArr));
         if (cookingTimeRangeArr.length > 0) {
+          console.log("COOKING TIME RANGE", cookingTimeRangeArr);
           filters.push(
-            sql.raw(
-              `(${cookingTimeRangeArr
-                .map(
-                  (range) =>
-                    `(tastybites_recipe.cooking_time BETWEEN  ${
-                      range.split("-")[0]
-                    } AND ${range.split("-")[1]})`,
-                )
-                .join(" OR ")})`,
-            ),
+            or(
+              ...cookingTimeRangeArr.map((range) => {
+                const min = Number(range.split("-")[0]);
+                const max = Number(range.split("-")[1]);
+
+                return between(recipes.cookingTime, min, max);
+              }),
+            ) as SQL,
           );
         }
 
