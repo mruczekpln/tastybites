@@ -85,7 +85,7 @@ export const recipeRouter = createTRPCRouter({
 
                 return between(recipes.cookingTime, min, max);
               }),
-            ) as SQL,
+            )!,
           );
         }
 
